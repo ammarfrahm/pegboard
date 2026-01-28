@@ -75,7 +75,7 @@ export function OptionsPanel({
         <label className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
           Max Dimensions (px)
         </label>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <input
             type="number"
             placeholder="Width"
@@ -87,9 +87,9 @@ export function OptionsPanel({
               })
             }
             disabled={disabled}
-            className="flex-1 px-3 py-2 rounded-lg bg-[hsl(var(--background))] border border-[hsl(var(--border))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ring))] disabled:opacity-50"
+            className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-[hsl(var(--background))] border border-[hsl(var(--border))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ring))] disabled:opacity-50"
           />
-          <span className="flex items-center text-[hsl(var(--muted-foreground))]">×</span>
+          <span className="flex-shrink-0 text-[hsl(var(--muted-foreground))]">×</span>
           <input
             type="number"
             placeholder="Height"
@@ -101,7 +101,7 @@ export function OptionsPanel({
               })
             }
             disabled={disabled}
-            className="flex-1 px-3 py-2 rounded-lg bg-[hsl(var(--background))] border border-[hsl(var(--border))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ring))] disabled:opacity-50"
+            className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-[hsl(var(--background))] border border-[hsl(var(--border))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ring))] disabled:opacity-50"
           />
         </div>
       </div>
