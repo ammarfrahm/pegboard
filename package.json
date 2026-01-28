@@ -1,5 +1,5 @@
 {
-  "name": "jade-app",
+  "name": "pegboard",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-router": "^1.157.16",
+    "@types/js-yaml": "^4.0.9",
     "browser-image-compression": "^2.0.2",
+    "js-yaml": "^4.1.1",
     "jszip": "^3.10.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
