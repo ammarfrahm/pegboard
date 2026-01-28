@@ -8,20 +8,7 @@ interface ComparisonSliderProps {
 export function ComparisonSlider({ beforeUrl, afterUrl }: ComparisonSliderProps) {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
-  const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Track container width
-  useEffect(() => {
-    const updateWidth = () => {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-      }
-    };
-    updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
-  }, []);
 
   const updatePosition = useCallback((clientX: number) => {
     if (!containerRef.current) return;
@@ -77,7 +64,7 @@ export function ComparisonSlider({ beforeUrl, afterUrl }: ComparisonSliderProps)
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
     >
-      {/* After Image (full) */}
+      {/* After Image (full, bottom layer) */}
       <img
         src={afterUrl}
         alt="After compression"
@@ -85,84 +72,79 @@ export function ComparisonSlider({ beforeUrl, afterUrl }: ComparisonSliderProps)
         draggable={false}
       />
 
-      {/* Before Image (clipped) */}
-      <div
-        className="absolute inset-0 overflow-hidden"
-        style={{ width: `${sliderPosition}%` }}
-      >
-        <img
-          src={beforeUrl}
-          alt="Before compression"
-          className="absolute inset-0 w-full h-full object-contain"
-          style={{ width: `${containerWidth}px` }}
-          draggable={false}
-        />
-      </div>
+      {/* Before Image (clipped using clip-path) */}
+      <img
+        src={beforeUrl}
+        alt="Before compression"
+        className="absolute inset-0 w-full h-full object-contain"
+        style={{
+          clipPath: `inset(0 ${100 - sliderPosition}% 0 0)`,
+        }}
+        draggable={false}
+      />
 
-      {/* Slider Line with measurement marks */}
+      {/* Slider Line */}
       <div
-        className="absolute top-0 bottom-0 w-0.5"
+        className="absolute top-0 bottom-0 z-10"
         style={{
           left: `${sliderPosition}%`,
           transform: 'translateX(-50%)',
+          width: '3px',
           backgroundColor: 'var(--accent)',
+          boxShadow: '0 0 4px rgba(0,0,0,0.5)',
         }}
       >
         {/* Measurement marks along the line */}
         {Array.from({ length: 11 }).map((_, i) => (
           <div
             key={i}
-            className="absolute w-2 h-px"
+            className="absolute"
             style={{
               top: `${i * 10}%`,
               left: '50%',
               transform: 'translateX(-50%)',
+              width: '12px',
+              height: '2px',
               backgroundColor: 'var(--accent)',
             }}
           />
         ))}
 
-        {/* Diamond/Square Handle with crosshair */}
+        {/* Diamond Handle */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform"
+          className="absolute top-1/2 left-1/2 z-20"
           style={{
             transform: `translate(-50%, -50%) rotate(45deg) ${isDragging ? 'scale(1.1)' : 'scale(1)'}`,
+            transition: 'transform 0.15s ease',
           }}
         >
           <div
             className="w-8 h-8 flex items-center justify-center"
-            style={{ backgroundColor: 'var(--accent)' }}
+            style={{
+              backgroundColor: 'var(--accent)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            }}
           >
             <div
-              className="w-4 h-4"
+              className="w-3 h-3"
               style={{
                 transform: 'rotate(-45deg)',
                 backgroundColor: 'var(--accent-foreground)',
               }}
-            >
-              {/* Crosshair */}
-              <div
-                className="absolute top-1/2 left-0 right-0 h-px"
-                style={{ backgroundColor: 'var(--accent)' }}
-              />
-              <div
-                className="absolute left-1/2 top-0 bottom-0 w-px"
-                style={{ backgroundColor: 'var(--accent)' }}
-              />
-            </div>
+            />
           </div>
         </div>
       </div>
 
       {/* Labels */}
       <div
-        className="absolute top-4 left-4 px-2 py-1 font-mono text-xs tracking-wider uppercase"
-        style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', border: '1px solid var(--border)' }}
+        className="absolute top-4 left-4 px-2 py-1 font-mono text-xs tracking-wider uppercase z-10"
+        style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', border: '2px solid var(--border)' }}
       >
         BEFORE
       </div>
       <div
-        className="absolute top-4 right-4 px-2 py-1 font-mono text-xs tracking-wider uppercase"
+        className="absolute top-4 right-4 px-2 py-1 font-mono text-xs tracking-wider uppercase z-10"
         style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}
       >
         AFTER
@@ -170,8 +152,8 @@ export function ComparisonSlider({ beforeUrl, afterUrl }: ComparisonSliderProps)
 
       {/* Position indicator */}
       <div
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 px-2 py-1 font-mono text-xs"
-        style={{ backgroundColor: 'var(--background)', color: 'var(--muted)', border: '1px solid var(--border)' }}
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 px-2 py-1 font-mono text-xs z-10"
+        style={{ backgroundColor: 'var(--background)', color: 'var(--muted)', border: '2px solid var(--border)' }}
       >
         {Math.round(sliderPosition)}%
       </div>

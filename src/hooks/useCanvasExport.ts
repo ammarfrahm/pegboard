@@ -96,6 +96,18 @@ export function useCanvasExport() {
     [renderToCanvas]
   );
 
+  const exportBase64 = useCallback(
+    async (
+      image: HTMLImageElement,
+      layers: TextLayer[],
+      options: ExportOptions = { format: 'png', quality: 0.92 }
+    ): Promise<string> => {
+      const canvas = await renderToCanvas(image, layers);
+      return canvas.toDataURL(`image/${options.format}`, options.quality);
+    },
+    [renderToCanvas]
+  );
+
   const downloadImage = useCallback(
     async (
       image: HTMLImageElement,
@@ -137,10 +149,60 @@ export function useCanvasExport() {
     [exportImage]
   );
 
+  const copyBase64ToClipboard = useCallback(
+    async (
+      image: HTMLImageElement,
+      layers: TextLayer[],
+      options?: ExportOptions
+    ): Promise<boolean> => {
+      try {
+        const base64 = await exportBase64(image, layers, options);
+        await navigator.clipboard.writeText(base64);
+        return true;
+      } catch {
+        console.error('Failed to copy base64 to clipboard');
+        return false;
+      }
+    },
+    [exportBase64]
+  );
+
+  const generateShareLink = useCallback(
+    async (
+      image: HTMLImageElement,
+      layers: TextLayer[],
+      options: ExportOptions = { format: 'jpeg', quality: 0.7 }
+    ): Promise<string | null> => {
+      try {
+        // For share links, we compress the image to keep URL shorter
+        const base64 = await exportBase64(image, layers, options);
+
+        // Create share URL with base64 in hash (to avoid server-side issues)
+        const baseUrl = window.location.origin + window.location.pathname;
+        const shareUrl = `${baseUrl}#/overlay?img=${encodeURIComponent(base64)}`;
+
+        // Check if URL is too long (most browsers support ~2000 chars in URL)
+        if (shareUrl.length > 50000) {
+          // If too long, just return the base64 directly
+          return null;
+        }
+
+        return shareUrl;
+      } catch {
+        console.error('Failed to generate share link');
+        return null;
+      }
+    },
+    [exportBase64]
+  );
+
   return {
     renderToCanvas,
     exportImage,
+    exportBase64,
     downloadImage,
     copyToClipboard,
+    copyBase64ToClipboard,
+    generateShareLink,
   };
 }

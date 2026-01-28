@@ -13,8 +13,13 @@ export function ExportPanel({ image, layers, originalFilename }: ExportPanelProp
   const [quality, setQuality] = useState(92);
   const [isCopying, setIsCopying] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [isCopyingBase64, setIsCopyingBase64] = useState(false);
+  const [base64Success, setBase64Success] = useState(false);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+  const [linkSuccess, setLinkSuccess] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
 
-  const { downloadImage, copyToClipboard } = useCanvasExport();
+  const { downloadImage, copyToClipboard, copyBase64ToClipboard, generateShareLink } = useCanvasExport();
 
   const handleDownload = async () => {
     if (!image) return;
@@ -37,6 +42,42 @@ export function ExportPanel({ image, layers, originalFilename }: ExportPanelProp
     if (success) {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
+    }
+  };
+
+  const handleCopyBase64 = async () => {
+    if (!image) return;
+
+    setIsCopyingBase64(true);
+    const success = await copyBase64ToClipboard(image, layers, { format, quality: quality / 100 });
+    setIsCopyingBase64(false);
+
+    if (success) {
+      setBase64Success(true);
+      setTimeout(() => setBase64Success(false), 2000);
+    }
+  };
+
+  const handleGenerateShareLink = async () => {
+    if (!image) return;
+
+    setIsGeneratingLink(true);
+    setLinkError(null);
+
+    // Use lower quality JPEG for share links to keep size manageable
+    const shareUrl = await generateShareLink(image, layers, { format: 'jpeg', quality: 0.6 });
+    setIsGeneratingLink(false);
+
+    if (shareUrl) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setLinkSuccess(true);
+        setTimeout(() => setLinkSuccess(false), 2000);
+      } catch {
+        setLinkError('Failed to copy link');
+      }
+    } else {
+      setLinkError('Image too large for share link');
     }
   };
 
@@ -89,8 +130,8 @@ export function ExportPanel({ image, layers, originalFilename }: ExportPanelProp
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex gap-2">
+      {/* Primary Action Buttons */}
+      <div className="flex gap-2 mb-3">
         <button
           onClick={handleDownload}
           disabled={isDisabled}
@@ -104,6 +145,46 @@ export function ExportPanel({ image, layers, originalFilename }: ExportPanelProp
           className="flex-1 btn-secondary px-4 py-2 text-sm"
         >
           {isCopying ? 'COPYING...' : copySuccess ? 'COPIED!' : 'COPY'}
+        </button>
+      </div>
+
+      {/* Secondary Actions - Base64 & Share */}
+      <div className="flex gap-2">
+        <button
+          onClick={handleCopyBase64}
+          disabled={isDisabled || isCopyingBase64}
+          className="flex-1 px-3 py-2 border-2 font-mono text-xs uppercase transition-colors"
+          style={{
+            borderColor: 'var(--border)',
+            backgroundColor: 'transparent',
+            color: base64Success ? 'var(--success)' : 'var(--muted)',
+          }}
+          onMouseEnter={(e) => {
+            if (!base64Success) e.currentTarget.style.color = 'var(--foreground)';
+          }}
+          onMouseLeave={(e) => {
+            if (!base64Success) e.currentTarget.style.color = 'var(--muted)';
+          }}
+        >
+          {isCopyingBase64 ? '...' : base64Success ? 'COPIED!' : 'BASE64'}
+        </button>
+        <button
+          onClick={handleGenerateShareLink}
+          disabled={isDisabled || isGeneratingLink}
+          className="flex-1 px-3 py-2 border-2 font-mono text-xs uppercase transition-colors"
+          style={{
+            borderColor: linkError ? 'var(--danger)' : 'var(--border)',
+            backgroundColor: 'transparent',
+            color: linkSuccess ? 'var(--success)' : linkError ? 'var(--danger)' : 'var(--muted)',
+          }}
+          onMouseEnter={(e) => {
+            if (!linkSuccess && !linkError) e.currentTarget.style.color = 'var(--foreground)';
+          }}
+          onMouseLeave={(e) => {
+            if (!linkSuccess && !linkError) e.currentTarget.style.color = 'var(--muted)';
+          }}
+        >
+          {isGeneratingLink ? '...' : linkSuccess ? 'COPIED!' : linkError ? 'TOO LARGE' : 'SHARE LINK'}
         </button>
       </div>
 

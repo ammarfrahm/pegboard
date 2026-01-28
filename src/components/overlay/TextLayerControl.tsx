@@ -114,24 +114,29 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
           <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
             COLOR
           </label>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <input
               type="color"
               value={layer.color}
               onChange={(e) => onChange({ color: e.target.value })}
-              className="w-10 h-10 border-2 cursor-pointer"
-              style={{ borderColor: 'var(--border)' }}
+              className="shrink-0 border-2 cursor-pointer p-0"
+              style={{
+                borderColor: 'var(--border)',
+                width: '32px',
+                height: '32px',
+              }}
             />
             <input
               type="text"
               value={layer.color}
               onChange={(e) => onChange({ color: e.target.value })}
-              className="flex-1 px-2 py-1 border-2 font-mono text-sm"
+              className="w-full min-w-0 px-2 py-1 border-2 font-mono text-xs"
               style={{
                 borderColor: 'var(--border)',
                 backgroundColor: 'var(--surface)',
                 color: 'var(--foreground)',
               }}
+              maxLength={7}
             />
           </div>
         </div>
