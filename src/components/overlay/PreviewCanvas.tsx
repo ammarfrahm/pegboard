@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import type { TextLayer } from '../../hooks/useTextLayers';
 import { TextOverlayElement } from './TextOverlayElement';
 
@@ -10,6 +10,113 @@ interface PreviewCanvasProps {
   onUpdateLayer: (id: string, updates: Partial<TextLayer>) => void;
 }
 
+interface CursorPosition {
+  x: number;
+  y: number;
+  naturalX: number;
+  naturalY: number;
+}
+
+function Ruler({
+  orientation,
+  length,
+  naturalLength
+}: {
+  orientation: 'horizontal' | 'vertical';
+  length: number;
+  naturalLength: number;
+}) {
+  const interval = naturalLength > 1000 ? 100 : 50;
+  const scale = length / naturalLength;
+  const ticks: { pos: number; label?: number }[] = [];
+
+  for (let i = 0; i <= naturalLength; i += interval) {
+    ticks.push({
+      pos: i * scale,
+      label: i % (interval * 2) === 0 ? i : undefined
+    });
+  }
+
+  if (orientation === 'horizontal') {
+    return (
+      <div
+        className="absolute top-0 left-6 h-6 overflow-hidden"
+        style={{
+          width: length,
+          backgroundColor: 'var(--surface)',
+          borderBottom: '1px solid var(--border)',
+        }}
+      >
+        {ticks.map((tick, i) => (
+          <div key={i}>
+            <div
+              className="absolute bottom-0"
+              style={{
+                left: tick.pos,
+                width: 1,
+                height: tick.label !== undefined ? 10 : 5,
+                backgroundColor: 'var(--muted)',
+              }}
+            />
+            {tick.label !== undefined && (
+              <span
+                className="absolute font-mono text-[10px]"
+                style={{
+                  left: tick.pos,
+                  bottom: 12,
+                  transform: 'translateX(-50%)',
+                  color: 'var(--muted)',
+                }}
+              >
+                {tick.label}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="absolute top-6 left-0 w-6 overflow-hidden"
+      style={{
+        height: length,
+        backgroundColor: 'var(--surface)',
+        borderRight: '1px solid var(--border)',
+      }}
+    >
+      {ticks.map((tick, i) => (
+        <div key={i}>
+          <div
+            className="absolute right-0"
+            style={{
+              top: tick.pos,
+              height: 1,
+              width: tick.label !== undefined ? 10 : 5,
+              backgroundColor: 'var(--muted)',
+            }}
+          />
+          {tick.label !== undefined && (
+            <span
+              className="absolute font-mono text-[10px]"
+              style={{
+                top: tick.pos,
+                right: 12,
+                transform: 'translateY(-50%) rotate(-90deg)',
+                transformOrigin: 'right center',
+                color: 'var(--muted)',
+              }}
+            >
+              {tick.label}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function PreviewCanvas({
   image,
   layers,
@@ -18,7 +125,9 @@ export function PreviewCanvas({
   onUpdateLayer,
 }: PreviewCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  const [cursorPos, setCursorPos] = useState<CursorPosition | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || !image) return;
@@ -27,8 +136,8 @@ export function PreviewCanvas({
       const container = containerRef.current;
       if (!container) return;
 
-      const containerWidth = container.clientWidth;
-      const containerHeight = container.clientHeight;
+      const containerWidth = container.clientWidth - 24; // Account for ruler
+      const containerHeight = container.clientHeight - 24;
 
       // Calculate size maintaining aspect ratio
       const imageAspect = image.naturalWidth / image.naturalHeight;
@@ -52,6 +161,30 @@ export function PreviewCanvas({
 
     return () => observer.disconnect();
   }, [image]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!imageContainerRef.current || !image) return;
+
+    const rect = imageContainerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (x >= 0 && x <= containerSize.width && y >= 0 && y <= containerSize.height) {
+      const scale = image.naturalWidth / containerSize.width;
+      setCursorPos({
+        x,
+        y,
+        naturalX: Math.round(x * scale),
+        naturalY: Math.round(y * scale),
+      });
+    } else {
+      setCursorPos(null);
+    }
+  }, [image, containerSize]);
+
+  const handleMouseLeave = useCallback(() => {
+    setCursorPos(null);
+  }, []);
 
   if (!image) {
     return (
@@ -77,60 +210,106 @@ export function PreviewCanvas({
       style={{
         borderColor: 'var(--border)',
         backgroundColor: 'var(--surface)',
-        aspectRatio: `${image.naturalWidth}/${image.naturalHeight}`,
         maxHeight: '70vh',
       }}
-      onClick={() => onSelectLayer(null)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
     >
-      {/* Image */}
+      {/* Ruler corner */}
       <div
-        className="absolute inset-0 flex items-center justify-center"
-        style={{ pointerEvents: 'none' }}
+        className="absolute top-0 left-0 w-6 h-6"
+        style={{ backgroundColor: 'var(--background)', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}
+      />
+
+      {/* Rulers */}
+      <Ruler
+        orientation="horizontal"
+        length={containerSize.width}
+        naturalLength={image.naturalWidth}
+      />
+      <Ruler
+        orientation="vertical"
+        length={containerSize.height}
+        naturalLength={image.naturalHeight}
+      />
+
+      {/* Cursor guides */}
+      {cursorPos && (
+        <>
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              left: cursorPos.x + 24,
+              top: 0,
+              bottom: 0,
+              width: 1,
+              backgroundColor: 'var(--accent)',
+              opacity: 0.5,
+            }}
+          />
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: cursorPos.y + 24,
+              left: 0,
+              right: 0,
+              height: 1,
+              backgroundColor: 'var(--accent)',
+              opacity: 0.5,
+            }}
+          />
+        </>
+      )}
+
+      {/* Image container with offset for rulers */}
+      <div
+        ref={imageContainerRef}
+        className="absolute"
+        style={{
+          top: 24,
+          left: 24,
+          width: containerSize.width,
+          height: containerSize.height,
+        }}
+        onClick={() => onSelectLayer(null)}
       >
+        {/* Image */}
         <img
           src={image.src}
           alt="Preview"
-          className="max-w-full max-h-full object-contain"
-          style={{
-            width: containerSize.width || 'auto',
-            height: containerSize.height || 'auto',
-          }}
+          className="absolute inset-0 w-full h-full object-contain pointer-events-none"
         />
+
+        {/* Text Overlay Container */}
+        <div className="absolute inset-0">
+          {layers.map((layer) => (
+            <TextOverlayElement
+              key={layer.id}
+              layer={layer}
+              isSelected={layer.id === selectedLayerId}
+              containerWidth={containerSize.width}
+              containerHeight={containerSize.height}
+              onSelect={() => onSelectLayer(layer.id)}
+              onPositionChange={(x, y) => onUpdateLayer(layer.id, { x, y })}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Text Overlay Container */}
+      {/* Coordinates Display */}
       <div
-        className="absolute"
-        style={{
-          width: containerSize.width,
-          height: containerSize.height,
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-        }}
-      >
-        {layers.map((layer) => (
-          <TextOverlayElement
-            key={layer.id}
-            layer={layer}
-            isSelected={layer.id === selectedLayerId}
-            containerWidth={containerSize.width}
-            containerHeight={containerSize.height}
-            onSelect={() => onSelectLayer(layer.id)}
-            onPositionChange={(x, y) => onUpdateLayer(layer.id, { x, y })}
-          />
-        ))}
-      </div>
-
-      {/* Dimensions Badge */}
-      <div
-        className="absolute bottom-2 right-2 px-2 py-1 font-mono text-xs"
+        className="absolute bottom-2 right-2 px-2 py-1 font-mono text-xs flex gap-4"
         style={{
           backgroundColor: 'rgba(0,0,0,0.7)',
           color: 'var(--muted)',
         }}
       >
-        {image.naturalWidth} × {image.naturalHeight}
+        {cursorPos && (
+          <span style={{ color: 'var(--accent)' }}>
+            X:{cursorPos.naturalX} Y:{cursorPos.naturalY}
+          </span>
+        )}
+        <span>{image.naturalWidth} × {image.naturalHeight}</span>
       </div>
     </div>
   );
