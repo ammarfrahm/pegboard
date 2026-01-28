@@ -76,7 +76,7 @@ export function PreviewCanvas({
       className="border-2 relative overflow-hidden"
       style={{
         borderColor: 'var(--border)',
-        backgroundColor: '#1a1a1a',
+        backgroundColor: 'var(--surface)',
         aspectRatio: `${image.naturalWidth}/${image.naturalHeight}`,
         maxHeight: '70vh',
       }}
