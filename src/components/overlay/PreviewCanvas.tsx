@@ -10,6 +10,11 @@ interface PreviewCanvasProps {
   onUpdateLayer: (id: string, updates: Partial<TextLayer>) => void;
 }
 
+interface SnapGuides {
+  horizontal: boolean;
+  vertical: boolean;
+}
+
 interface CursorPosition {
   x: number;
   y: number;
@@ -128,6 +133,7 @@ export function PreviewCanvas({
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [cursorPos, setCursorPos] = useState<CursorPosition | null>(null);
+  const [snapGuides, setSnapGuides] = useState<SnapGuides>({ horizontal: false, vertical: false });
 
   useEffect(() => {
     if (!containerRef.current || !image) return;
@@ -184,6 +190,10 @@ export function PreviewCanvas({
 
   const handleMouseLeave = useCallback(() => {
     setCursorPos(null);
+  }, []);
+
+  const handleSnapGuidesChange = useCallback((guides: SnapGuides) => {
+    setSnapGuides(guides);
   }, []);
 
   if (!image) {
@@ -280,6 +290,30 @@ export function PreviewCanvas({
           className="absolute inset-0 w-full h-full object-contain pointer-events-none"
         />
 
+        {/* Snap Guide Lines */}
+        {snapGuides.vertical && (
+          <div
+            className="absolute top-0 bottom-0 pointer-events-none"
+            style={{
+              left: '50%',
+              width: 1,
+              backgroundColor: 'var(--danger)',
+              transform: 'translateX(-50%)',
+            }}
+          />
+        )}
+        {snapGuides.horizontal && (
+          <div
+            className="absolute left-0 right-0 pointer-events-none"
+            style={{
+              top: '50%',
+              height: 1,
+              backgroundColor: 'var(--danger)',
+              transform: 'translateY(-50%)',
+            }}
+          />
+        )}
+
         {/* Text Overlay Container */}
         <div className="absolute inset-0">
           {layers.map((layer) => (
@@ -291,6 +325,7 @@ export function PreviewCanvas({
               containerHeight={containerSize.height}
               onSelect={() => onSelectLayer(layer.id)}
               onPositionChange={(x, y) => onUpdateLayer(layer.id, { x, y })}
+              onSnapGuidesChange={handleSnapGuidesChange}
             />
           ))}
         </div>

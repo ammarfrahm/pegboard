@@ -1,6 +1,11 @@
 import { useRef, useEffect, useCallback } from 'react';
 import type { TextLayer } from '../../hooks/useTextLayers';
 
+interface SnapGuides {
+  horizontal: boolean;
+  vertical: boolean;
+}
+
 interface TextOverlayElementProps {
   layer: TextLayer;
   isSelected: boolean;
@@ -8,7 +13,10 @@ interface TextOverlayElementProps {
   containerHeight: number;
   onSelect: () => void;
   onPositionChange: (x: number, y: number) => void;
+  onSnapGuidesChange?: (guides: SnapGuides) => void;
 }
+
+const SNAP_THRESHOLD = 2; // percentage threshold for snapping
 
 export function TextOverlayElement({
   layer,
@@ -17,10 +25,32 @@ export function TextOverlayElement({
   containerHeight,
   onSelect,
   onPositionChange,
+  onSnapGuidesChange,
 }: TextOverlayElementProps) {
   const elementRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0, layerX: 0, layerY: 0 });
+
+  const applySnap = useCallback((x: number, y: number): { x: number; y: number; snapH: boolean; snapV: boolean } => {
+    let snapH = false;
+    let snapV = false;
+    let snappedX = x;
+    let snappedY = y;
+
+    // Snap to horizontal center (50%)
+    if (Math.abs(x - 50) < SNAP_THRESHOLD) {
+      snappedX = 50;
+      snapV = true;
+    }
+
+    // Snap to vertical center (50%)
+    if (Math.abs(y - 50) < SNAP_THRESHOLD) {
+      snappedY = 50;
+      snapH = true;
+    }
+
+    return { x: snappedX, y: snappedY, snapH, snapV };
+  }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -45,21 +75,28 @@ export function TextOverlayElement({
       const dxPercent = (dx / containerWidth) * 100;
       const dyPercent = (dy / containerHeight) * 100;
 
-      const newX = Math.max(0, Math.min(100, dragStart.current.layerX + dxPercent));
-      const newY = Math.max(0, Math.min(100, dragStart.current.layerY + dyPercent));
+      let newX = Math.max(0, Math.min(100, dragStart.current.layerX + dxPercent));
+      let newY = Math.max(0, Math.min(100, dragStart.current.layerY + dyPercent));
 
+      // Apply snapping
+      const snapped = applySnap(newX, newY);
+      newX = snapped.x;
+      newY = snapped.y;
+
+      onSnapGuidesChange?.({ horizontal: snapped.snapH, vertical: snapped.snapV });
       onPositionChange(newX, newY);
     };
 
     const handleMouseUp = () => {
       isDragging.current = false;
+      onSnapGuidesChange?.({ horizontal: false, vertical: false });
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-  }, [layer.x, layer.y, containerWidth, containerHeight, onSelect, onPositionChange]);
+  }, [layer.x, layer.y, containerWidth, containerHeight, onSelect, onPositionChange, onSnapGuidesChange, applySnap]);
 
   // Touch support
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -86,21 +123,28 @@ export function TextOverlayElement({
       const dxPercent = (dx / containerWidth) * 100;
       const dyPercent = (dy / containerHeight) * 100;
 
-      const newX = Math.max(0, Math.min(100, dragStart.current.layerX + dxPercent));
-      const newY = Math.max(0, Math.min(100, dragStart.current.layerY + dyPercent));
+      let newX = Math.max(0, Math.min(100, dragStart.current.layerX + dxPercent));
+      let newY = Math.max(0, Math.min(100, dragStart.current.layerY + dyPercent));
 
+      // Apply snapping
+      const snapped = applySnap(newX, newY);
+      newX = snapped.x;
+      newY = snapped.y;
+
+      onSnapGuidesChange?.({ horizontal: snapped.snapH, vertical: snapped.snapV });
       onPositionChange(newX, newY);
     };
 
     const handleTouchEnd = () => {
       isDragging.current = false;
+      onSnapGuidesChange?.({ horizontal: false, vertical: false });
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
     };
 
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd);
-  }, [layer.x, layer.y, containerWidth, containerHeight, onSelect, onPositionChange]);
+  }, [layer.x, layer.y, containerWidth, containerHeight, onSelect, onPositionChange, onSnapGuidesChange, applySnap]);
 
   // Calculate scale factor for preview
   useEffect(() => {
