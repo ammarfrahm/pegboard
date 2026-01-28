@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { ImagePlus } from 'lucide-react';
 
 interface ImageUploadProps {
   onImageLoad: (image: HTMLImageElement, file: File) => void;
@@ -57,9 +58,7 @@ export function ImageUpload({ onImageLoad, compact }: ImageUploadProps) {
           className="w-16 h-16 flex items-center justify-center"
           style={{ backgroundColor: 'var(--surface)', border: '2px solid var(--border)' }}
         >
-          <svg className="w-8 h-8" style={{ color: 'var(--muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="square" strokeWidth={2} d="M4 16l4-4 4 4m0-8l4 4 4-4M3 5h18M3 19h18" />
-          </svg>
+          <ImagePlus className="w-8 h-8" style={{ color: 'var(--muted)' }} />
         </div>
         <div>
           <p className="font-display text-lg mb-2">

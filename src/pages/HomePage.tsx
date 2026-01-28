@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { Minimize2, Type } from 'lucide-react';
 
 export function HomePage() {
   return (
@@ -31,9 +32,7 @@ export function HomePage() {
               className="w-12 h-12 flex items-center justify-center shrink-0"
               style={{ backgroundColor: 'var(--accent)' }}
             >
-              <svg className="w-6 h-6" style={{ color: 'var(--accent-foreground)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={2} d="M4 16l4-4 4 4m0-8l4 4 4-4" />
-              </svg>
+              <Minimize2 className="w-6 h-6" style={{ color: 'var(--accent-foreground)' }} />
             </div>
             <div>
               <h2 className="font-display text-lg tracking-tight mb-2 group-hover:text-[var(--accent)] transition-colors">
@@ -66,9 +65,7 @@ export function HomePage() {
               className="w-12 h-12 flex items-center justify-center shrink-0"
               style={{ backgroundColor: 'var(--accent)' }}
             >
-              <svg className="w-6 h-6" style={{ color: 'var(--accent-foreground)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={2} d="M4 6h16M4 12h16M4 18h12" />
-              </svg>
+              <Type className="w-6 h-6" style={{ color: 'var(--accent-foreground)' }} />
             </div>
             <div>
               <h2 className="font-display text-lg tracking-tight mb-2 group-hover:text-[var(--accent)] transition-colors">

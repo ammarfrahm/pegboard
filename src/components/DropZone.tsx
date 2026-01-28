@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { Plus, ImagePlus } from 'lucide-react';
 
 interface DropZoneProps {
   onFilesAccepted: (files: File[]) => void;
@@ -35,20 +36,10 @@ export function DropZone({ onFilesAccepted, compact = false }: DropZoneProps) {
         }}
       >
         <input {...getInputProps()} />
-        <svg
+        <Plus
           className="w-5 h-5"
           style={{ color: isDragActive ? 'var(--accent)' : 'var(--muted)' }}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="square"
-            strokeLinejoin="miter"
-            strokeWidth={2}
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
+        />
         <span className="font-mono text-sm" style={{ color: 'var(--muted)' }}>
           ADD MORE
         </span>
@@ -87,22 +78,13 @@ export function DropZone({ onFilesAccepted, compact = false }: DropZoneProps) {
             backgroundColor: isDragActive ? 'var(--accent)' : 'var(--border)',
           }}
         >
-          <svg
+          <ImagePlus
             className="w-10 h-10 transition-colors"
             style={{
               color: isDragActive ? 'var(--accent-foreground)' : 'var(--muted)',
             }}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="square"
-              strokeLinejoin="miter"
-              strokeWidth={1.5}
-              d="M4 16l4-4 4 4m4-4l4-4M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
+            strokeWidth={1.5}
+          />
         </div>
 
         <div className="text-center space-y-2">

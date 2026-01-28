@@ -1,3 +1,4 @@
+import { X } from 'lucide-react';
 import { formatFileSize, calculateSavings } from '../utils/fileHelpers';
 import type { ImageFile } from '../types';
 
@@ -135,9 +136,7 @@ export function BatchQueue({ images, selectedId, onSelect, onRemove }: BatchQueu
                 e.currentTarget.style.color = 'var(--muted)';
               }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-4 h-4" />
             </button>
           </div>
         ))}
