@@ -53,7 +53,7 @@ export function CompressPage() {
     <>
       {images.length === 0 ? (
         <div className="max-w-2xl mx-auto animate-fade-up">
-          <DropZone onFilesAccepted={handleFilesAccepted} />
+          <DropZone onFilesAccepted={handleFilesAccepted} hint="JPEG / PNG / WEBP" />
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

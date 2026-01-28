@@ -1,13 +1,36 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+import type { Accept } from 'react-dropzone';
 import { Plus, ImagePlus } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface DropZoneProps {
   onFilesAccepted: (files: File[]) => void;
   compact?: boolean;
+  multiple?: boolean;
+  accept?: Accept;
+  icon?: LucideIcon;
+  label?: string;
+  compactLabel?: string;
+  hint?: string;
 }
 
-export function DropZone({ onFilesAccepted, compact = false }: DropZoneProps) {
+const defaultAccept: Accept = {
+  'image/jpeg': ['.jpg', '.jpeg'],
+  'image/png': ['.png'],
+  'image/webp': ['.webp'],
+};
+
+export function DropZone({
+  onFilesAccepted,
+  compact = false,
+  multiple = true,
+  accept = defaultAccept,
+  icon: Icon = ImagePlus,
+  label = 'DROP IMAGES HERE',
+  compactLabel = 'ADD MORE',
+  hint,
+}: DropZoneProps) {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       onFilesAccepted(acceptedFiles);
@@ -17,12 +40,8 @@ export function DropZone({ onFilesAccepted, compact = false }: DropZoneProps) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'image/png': ['.png'],
-      'image/webp': ['.webp'],
-    },
-    multiple: true,
+    accept,
+    multiple,
   });
 
   if (compact) {
@@ -41,7 +60,7 @@ export function DropZone({ onFilesAccepted, compact = false }: DropZoneProps) {
           style={{ color: isDragActive ? 'var(--accent)' : 'var(--muted)' }}
         />
         <span className="font-mono text-sm" style={{ color: 'var(--muted)' }}>
-          ADD MORE
+          {compactLabel}
         </span>
       </div>
     );
@@ -70,40 +89,34 @@ export function DropZone({ onFilesAccepted, compact = false }: DropZoneProps) {
         }}
       />
 
+      {/* Corner markers */}
+      <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2" style={{ borderColor: isDragActive ? 'var(--accent)' : 'var(--border)' }} />
+      <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2" style={{ borderColor: isDragActive ? 'var(--accent)' : 'var(--border)' }} />
+      <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2" style={{ borderColor: isDragActive ? 'var(--accent)' : 'var(--border)' }} />
+      <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2" style={{ borderColor: isDragActive ? 'var(--accent)' : 'var(--border)' }} />
+
       <div className="relative flex flex-col items-center gap-6">
-        {/* Industrial icon */}
-        <div
-          className="w-20 h-20 flex items-center justify-center transition-all"
+        <Icon
+          className="w-12 h-12 transition-colors"
           style={{
-            backgroundColor: isDragActive ? 'var(--accent)' : 'var(--border)',
+            color: isDragActive ? 'var(--accent)' : 'var(--muted)',
           }}
-        >
-          <ImagePlus
-            className="w-10 h-10 transition-colors"
-            style={{
-              color: isDragActive ? 'var(--accent-foreground)' : 'var(--muted)',
-            }}
-            strokeWidth={1.5}
-          />
-        </div>
+          strokeWidth={1.5}
+        />
 
         <div className="text-center space-y-2">
           <p className="font-display text-lg tracking-wide">
-            {isDragActive ? 'DROP FILES HERE' : 'DROP IMAGES HERE'}
+            {isDragActive ? 'DROP HERE' : label}
           </p>
           <p className="font-mono text-sm" style={{ color: 'var(--muted)' }}>
             OR CLICK TO BROWSE
           </p>
-          <p className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
-            JPEG / PNG / WEBP
-          </p>
+          {hint && (
+            <p className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
+              {hint}
+            </p>
+          )}
         </div>
-
-        {/* Corner markers */}
-        <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2" style={{ borderColor: isDragActive ? 'var(--accent)' : 'var(--border)' }} />
-        <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2" style={{ borderColor: isDragActive ? 'var(--accent)' : 'var(--border)' }} />
-        <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2" style={{ borderColor: isDragActive ? 'var(--accent)' : 'var(--border)' }} />
-        <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2" style={{ borderColor: isDragActive ? 'var(--accent)' : 'var(--border)' }} />
       </div>
     </div>
   );
