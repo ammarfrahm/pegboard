@@ -36,6 +36,8 @@ export const compressionPresets: CompressionPreset[] = [
     description: 'Minimal compression for quality preservation (90% quality)',
     options: {
       quality: 0.9,
+      maxWidth: undefined,
+      maxHeight: undefined,
       outputFormat: 'image/webp',
     },
   },
