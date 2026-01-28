@@ -7,7 +7,7 @@ export function HomePage() {
       <div className="text-center mb-12">
         <h1 className="font-display text-3xl md:text-4xl tracking-tight mb-4">PEGBOARD</h1>
         <p className="text-lg" style={{ color: 'var(--muted)' }}>
-          Image tools for the modern web
+          Tools for the modern web
         </p>
       </div>
 
