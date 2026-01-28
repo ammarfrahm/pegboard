@@ -7,7 +7,11 @@ interface TextLayerControlProps {
 
 const FONT_FAMILIES = [
   'Inter',
+  'Roboto',
   'JetBrains Mono',
+  'Playfair Display',
+  'Lobster',
+  'Pacifico',
   'Arial',
   'Georgia',
   'Times New Roman',
