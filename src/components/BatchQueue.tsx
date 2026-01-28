@@ -12,24 +12,43 @@ export function BatchQueue({ images, selectedId, onSelect, onRemove }: BatchQueu
   if (images.length === 0) return null;
 
   return (
-    <div className="bg-[hsl(var(--card))] rounded-xl border border-[hsl(var(--border))] overflow-hidden">
-      <div className="px-4 py-3 border-b border-[hsl(var(--border))]">
-        <h3 className="font-medium">
-          Images ({images.length})
+    <div className="border-2 overflow-hidden" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+      {/* Header */}
+      <div className="px-4 py-3 border-b-2 flex items-center gap-2" style={{ borderColor: 'var(--border)' }}>
+        <div className="w-2 h-2" style={{ backgroundColor: 'var(--accent)' }} />
+        <h3 className="font-mono text-sm font-semibold tracking-wider uppercase" style={{ color: 'var(--muted)' }}>
+          QUEUE ({images.length})
         </h3>
       </div>
-      <div className="divide-y divide-[hsl(var(--border))] max-h-64 overflow-y-auto">
+
+      {/* Table header */}
+      <div
+        className="grid grid-cols-[48px_1fr_auto_auto_32px] gap-3 px-4 py-2 border-b text-xs font-mono tracking-wider uppercase"
+        style={{ borderColor: 'var(--border)', color: 'var(--muted)', backgroundColor: 'var(--background)' }}
+      >
+        <span></span>
+        <span>FILE</span>
+        <span>SIZE</span>
+        <span>STATUS</span>
+        <span></span>
+      </div>
+
+      {/* Table body */}
+      <div className="max-h-64 overflow-y-auto">
         {images.map((image) => (
           <div
             key={image.id}
             onClick={() => onSelect(image)}
-            className={`
-              flex items-center gap-3 p-3 cursor-pointer transition-colors
-              ${selectedId === image.id ? 'bg-[hsl(var(--primary))]/10' : 'hover:bg-[hsl(var(--muted))]'}
-            `}
+            className="grid grid-cols-[48px_1fr_auto_auto_32px] gap-3 px-4 py-3 cursor-pointer transition-all border-b items-center"
+            style={{
+              borderColor: 'var(--border)',
+              backgroundColor: selectedId === image.id ? 'rgba(6, 182, 212, 0.1)' : 'transparent',
+              borderLeftWidth: selectedId === image.id ? '3px' : '0',
+              borderLeftColor: selectedId === image.id ? 'var(--accent)' : 'transparent',
+            }}
           >
             {/* Thumbnail */}
-            <div className="w-12 h-12 rounded-lg overflow-hidden bg-[hsl(var(--muted))] flex-shrink-0">
+            <div className="w-12 h-12 overflow-hidden flex-shrink-0 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
               <img
                 src={image.originalUrl}
                 alt=""
@@ -37,67 +56,62 @@ export function BatchQueue({ images, selectedId, onSelect, onRemove }: BatchQueu
               />
             </div>
 
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{image.file.name}</p>
-              <div className="flex items-center gap-2 text-xs text-[hsl(var(--muted-foreground))]">
-                <span>{formatFileSize(image.originalSize)}</span>
-                {image.status === 'completed' && image.compressedSize && (
-                  <>
-                    <span>→</span>
-                    <span>{formatFileSize(image.compressedSize)}</span>
-                    <span className="text-green-500">
-                      (-{calculateSavings(image.originalSize, image.compressedSize)}%)
-                    </span>
-                  </>
-                )}
-              </div>
+            {/* File name */}
+            <div className="min-w-0">
+              <p className="font-mono text-sm truncate">{image.file.name}</p>
+            </div>
+
+            {/* Size info */}
+            <div className="text-right font-mono text-xs" style={{ color: 'var(--muted)' }}>
+              <span>{formatFileSize(image.originalSize)}</span>
+              {image.status === 'completed' && image.compressedSize && (
+                <>
+                  <span className="mx-1">→</span>
+                  <span style={{ color: 'var(--accent)' }}>{formatFileSize(image.compressedSize)}</span>
+                  <span className="ml-1" style={{ color: 'var(--success)' }}>
+                    (-{calculateSavings(image.originalSize, image.compressedSize)}%)
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Status */}
             <div className="flex-shrink-0">
               {image.status === 'pending' && (
-                <span className="px-2 py-1 text-xs rounded bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
-                  Pending
+                <span
+                  className="px-2 py-1 font-mono text-xs tracking-wider uppercase"
+                  style={{ backgroundColor: 'var(--border)', color: 'var(--muted)' }}
+                >
+                  PENDING
                 </span>
               )}
               {image.status === 'compressing' && (
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-[hsl(var(--primary))] border-t-transparent rounded-full animate-spin" />
-                  <span className="text-xs text-[hsl(var(--muted-foreground))]">
+                  {/* LED-style indicator */}
+                  <div
+                    className="w-2 h-2 animate-pulse"
+                    style={{ backgroundColor: 'var(--accent)' }}
+                  />
+                  <span className="font-mono text-xs" style={{ color: 'var(--accent)' }}>
                     {image.progress}%
                   </span>
                 </div>
               )}
               {image.status === 'completed' && (
-                <svg
-                  className="w-5 h-5 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2" style={{ backgroundColor: 'var(--success)' }} />
+                  <span className="font-mono text-xs tracking-wider uppercase" style={{ color: 'var(--success)' }}>
+                    DONE
+                  </span>
+                </div>
               )}
               {image.status === 'error' && (
-                <svg
-                  className="w-5 h-5 text-[hsl(var(--destructive))]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2" style={{ backgroundColor: 'var(--danger)' }} />
+                  <span className="font-mono text-xs tracking-wider uppercase" style={{ color: 'var(--danger)' }}>
+                    ERROR
+                  </span>
+                </div>
               )}
             </div>
 
@@ -107,15 +121,22 @@ export function BatchQueue({ images, selectedId, onSelect, onRemove }: BatchQueu
                 e.stopPropagation();
                 onRemove(image.id);
               }}
-              className="flex-shrink-0 p-1 rounded hover:bg-[hsl(var(--destructive))]/10 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--destructive))] transition-colors"
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center border transition-colors"
+              style={{
+                borderColor: 'var(--border)',
+                color: 'var(--muted)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--danger)';
+                e.currentTarget.style.color = 'var(--danger)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--muted)';
+              }}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
+                <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>

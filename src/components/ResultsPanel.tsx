@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import JSZip from 'jszip';
 import { formatFileSize, calculateSavings, getFileExtension } from '../utils/fileHelpers';
 import type { ImageFile } from '../types';
@@ -6,6 +6,37 @@ import type { ImageFile } from '../types';
 interface ResultsPanelProps {
   image: ImageFile;
   images: ImageFile[];
+}
+
+function AnimatedNumber({ value, suffix = '' }: { value: number; suffix?: string }) {
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    const duration = 500;
+    const steps = 20;
+    const increment = value / steps;
+    let current = 0;
+    let step = 0;
+
+    const timer = setInterval(() => {
+      step++;
+      current = Math.min(increment * step, value);
+      setDisplayValue(current);
+
+      if (step >= steps) {
+        clearInterval(timer);
+        setDisplayValue(value);
+      }
+    }, duration / steps);
+
+    return () => clearInterval(timer);
+  }, [value]);
+
+  return (
+    <span className="animate-count-up">
+      {displayValue.toFixed(suffix === '%' ? 0 : 2)}{suffix}
+    </span>
+  );
 }
 
 export function ResultsPanel({ image, images }: ResultsPanelProps) {
@@ -55,103 +86,153 @@ export function ResultsPanel({ image, images }: ResultsPanelProps) {
     URL.revokeObjectURL(url);
   }, [completedImages, handleDownloadSingle]);
 
-  const savings = calculateSavings(image.originalSize, image.compressedSize || 0);
+  const savingsNum = calculateSavings(image.originalSize, image.compressedSize || 0);
   const totalOriginalSize = completedImages.reduce((sum, img) => sum + img.originalSize, 0);
   const totalCompressedSize = completedImages.reduce(
     (sum, img) => sum + (img.compressedSize || 0),
     0
   );
-  const totalSavings = calculateSavings(totalOriginalSize, totalCompressedSize);
+  const totalSavingsNum = calculateSavings(totalOriginalSize, totalCompressedSize);
+
+  // Parse file sizes for animation
+  const originalSizeNum = image.originalSize / 1024;
+  const compressedSizeNum = (image.compressedSize || 0) / 1024;
 
   return (
-    <div className="bg-[hsl(var(--card))] rounded-xl border border-[hsl(var(--border))] p-6 space-y-6">
-      <h2 className="font-semibold text-lg">Results</h2>
+    <div className="border-2 p-6 space-y-6" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <div className="w-2 h-2" style={{ backgroundColor: 'var(--success)' }} />
+        <h2 className="font-mono text-sm font-semibold tracking-wider uppercase" style={{ color: 'var(--muted)' }}>
+          RESULTS
+        </h2>
+      </div>
 
-      {/* Current Image Stats */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-          Selected Image
-        </h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">Original</p>
-            <p className="text-lg font-semibold">{formatFileSize(image.originalSize)}</p>
+      {/* Gauge Stats Display */}
+      <div className="border-2 p-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
+        <div className="grid grid-cols-2 gap-4 text-center">
+          <div>
+            <p className="font-mono text-xs tracking-wider uppercase mb-1" style={{ color: 'var(--muted)' }}>
+              ORIGINAL
+            </p>
+            <p className="font-mono text-2xl font-bold" style={{ color: 'var(--foreground)' }}>
+              <AnimatedNumber value={originalSizeNum} />
+              <span className="text-sm font-normal ml-1" style={{ color: 'var(--muted)' }}>KB</span>
+            </p>
           </div>
-          <div className="space-y-1">
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">Compressed</p>
-            <p className="text-lg font-semibold">
-              {formatFileSize(image.compressedSize || 0)}
+          <div>
+            <p className="font-mono text-xs tracking-wider uppercase mb-1" style={{ color: 'var(--muted)' }}>
+              COMPRESSED
+            </p>
+            <p className="font-mono text-2xl font-bold" style={{ color: 'var(--accent)' }}>
+              <AnimatedNumber value={compressedSizeNum} />
+              <span className="text-sm font-normal ml-1" style={{ color: 'var(--muted)' }}>KB</span>
             </p>
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10">
-          <span className="text-sm text-green-600 dark:text-green-400">Saved</span>
-          <span className="text-lg font-bold text-green-600 dark:text-green-400">
-            {savings}%
-          </span>
+        {/* Arrow indicator */}
+        <div className="flex items-center justify-center my-4">
+          <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border)' }} />
+          <svg className="w-6 h-6 mx-2" style={{ color: 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+          <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border)' }} />
         </div>
 
-        {image.compressionTime && (
-          <p className="text-xs text-[hsl(var(--muted-foreground))]">
-            Compressed in {image.compressionTime}ms
-          </p>
-        )}
+        {/* Savings Progress Bar */}
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="font-mono text-xs tracking-wider uppercase" style={{ color: 'var(--muted)' }}>
+              SAVED
+            </span>
+            <span className="font-mono text-xl font-bold" style={{ color: 'var(--success)' }}>
+              <AnimatedNumber value={savingsNum} suffix="%" />
+            </span>
+          </div>
 
-        <button
-          onClick={handleDownloadSingle}
-          className="w-full px-4 py-2 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            />
-          </svg>
-          Download
-        </button>
+          {/* Segmented progress bar */}
+          <div className="flex gap-0.5">
+            {Array.from({ length: 20 }).map((_, i) => {
+              const threshold = (i + 1) * 5;
+              const filled = savingsNum >= threshold;
+              return (
+                <div
+                  key={i}
+                  className="h-3 flex-1 transition-all duration-300"
+                  style={{
+                    backgroundColor: filled ? 'var(--success)' : 'var(--border)',
+                    transitionDelay: `${i * 20}ms`
+                  }}
+                />
+              );
+            })}
+          </div>
+        </div>
       </div>
+
+      {/* Compression time */}
+      {image.compressionTime && (
+        <p className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
+          PROCESSED IN {image.compressionTime}MS
+        </p>
+      )}
+
+      {/* Download button */}
+      <button
+        onClick={handleDownloadSingle}
+        className="w-full btn-primary px-4 py-3 flex items-center justify-center gap-2"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        DOWNLOAD
+      </button>
 
       {/* Batch Stats */}
       {completedImages.length > 1 && (
-        <div className="space-y-4 pt-4 border-t border-[hsl(var(--border))]">
-          <h3 className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-            All Images ({completedImages.length})
-          </h3>
+        <div className="space-y-4 pt-4 border-t-2" style={{ borderColor: 'var(--border)' }}>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2" style={{ backgroundColor: 'var(--accent)' }} />
+            <h3 className="font-mono text-xs tracking-wider uppercase" style={{ color: 'var(--muted)' }}>
+              ALL IMAGES ({completedImages.length})
+            </h3>
+          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <p className="text-xs text-[hsl(var(--muted-foreground))]">Total Original</p>
-              <p className="text-lg font-semibold">{formatFileSize(totalOriginalSize)}</p>
+          <div className="grid grid-cols-2 gap-4 text-center border-2 p-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
+            <div>
+              <p className="font-mono text-xs tracking-wider uppercase mb-1" style={{ color: 'var(--muted)' }}>
+                TOTAL ORIGINAL
+              </p>
+              <p className="font-mono text-lg font-bold">{formatFileSize(totalOriginalSize)}</p>
             </div>
-            <div className="space-y-1">
-              <p className="text-xs text-[hsl(var(--muted-foreground))]">Total Compressed</p>
-              <p className="text-lg font-semibold">{formatFileSize(totalCompressedSize)}</p>
+            <div>
+              <p className="font-mono text-xs tracking-wider uppercase mb-1" style={{ color: 'var(--muted)' }}>
+                TOTAL COMPRESSED
+              </p>
+              <p className="font-mono text-lg font-bold" style={{ color: 'var(--accent)' }}>
+                {formatFileSize(totalCompressedSize)}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10">
-            <span className="text-sm text-green-600 dark:text-green-400">Total Saved</span>
-            <span className="text-lg font-bold text-green-600 dark:text-green-400">
-              {totalSavings}%
+          <div className="flex items-center justify-between p-3 border-2" style={{ borderColor: 'var(--success)', backgroundColor: 'rgba(34, 197, 94, 0.1)' }}>
+            <span className="font-mono text-sm tracking-wider uppercase" style={{ color: 'var(--success)' }}>
+              TOTAL SAVED
+            </span>
+            <span className="font-mono text-xl font-bold" style={{ color: 'var(--success)' }}>
+              <AnimatedNumber value={totalSavingsNum} suffix="%" />
             </span>
           </div>
 
           <button
             onClick={handleDownloadAll}
-            className="w-full px-4 py-2 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            className="w-full btn-secondary px-4 py-3 flex items-center justify-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-              />
+              <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            Download All (ZIP)
+            DOWNLOAD ALL (ZIP)
           </button>
         </div>
       )}

@@ -86,43 +86,81 @@ export function ComparisonSlider({ beforeUrl, afterUrl }: ComparisonSliderProps)
         />
       </div>
 
-      {/* Slider Line */}
+      {/* Slider Line with measurement marks */}
       <div
-        className="absolute top-0 bottom-0 w-0.5 bg-white shadow-lg"
-        style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
+        className="absolute top-0 bottom-0 w-0.5"
+        style={{
+          left: `${sliderPosition}%`,
+          transform: 'translateX(-50%)',
+          backgroundColor: 'var(--accent)',
+        }}
       >
-        {/* Slider Handle */}
+        {/* Measurement marks along the line */}
+        {Array.from({ length: 11 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-2 h-px"
+            style={{
+              top: `${i * 10}%`,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: 'var(--accent)',
+            }}
+          />
+        ))}
+
+        {/* Diamond/Square Handle with crosshair */}
         <div
-          className={`
-            absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-            w-10 h-10 rounded-full bg-white shadow-lg
-            flex items-center justify-center
-            transition-transform
-            ${isDragging ? 'scale-110' : ''}
-          `}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform"
+          style={{
+            transform: `translate(-50%, -50%) rotate(45deg) ${isDragging ? 'scale(1.1)' : 'scale(1)'}`,
+          }}
         >
-          <svg
-            className="w-5 h-5 text-gray-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+          <div
+            className="w-8 h-8 flex items-center justify-center"
+            style={{ backgroundColor: 'var(--accent)' }}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 9l4-4 4 4m0 6l-4 4-4-4"
-            />
-          </svg>
+            <div
+              className="w-4 h-4"
+              style={{
+                transform: 'rotate(-45deg)',
+                backgroundColor: 'var(--accent-foreground)',
+              }}
+            >
+              {/* Crosshair */}
+              <div
+                className="absolute top-1/2 left-0 right-0 h-px"
+                style={{ backgroundColor: 'var(--accent)' }}
+              />
+              <div
+                className="absolute left-1/2 top-0 bottom-0 w-px"
+                style={{ backgroundColor: 'var(--accent)' }}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Labels */}
-      <div className="absolute top-4 left-4 px-2 py-1 bg-black/50 text-white text-xs rounded">
-        Before
+      <div
+        className="absolute top-4 left-4 px-2 py-1 font-mono text-xs tracking-wider uppercase"
+        style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', border: '1px solid var(--border)' }}
+      >
+        BEFORE
       </div>
-      <div className="absolute top-4 right-4 px-2 py-1 bg-black/50 text-white text-xs rounded">
-        After
+      <div
+        className="absolute top-4 right-4 px-2 py-1 font-mono text-xs tracking-wider uppercase"
+        style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}
+      >
+        AFTER
+      </div>
+
+      {/* Position indicator */}
+      <div
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 px-2 py-1 font-mono text-xs"
+        style={{ backgroundColor: 'var(--background)', color: 'var(--muted)', border: '1px solid var(--border)' }}
+      >
+        {Math.round(sliderPosition)}%
       </div>
     </div>
   );

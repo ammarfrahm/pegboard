@@ -12,71 +12,77 @@ export function ImagePreview({ image }: ImagePreviewProps) {
   const hasCompressed = image.status === 'completed' && image.compressedUrl;
 
   return (
-    <div className="bg-[hsl(var(--card))] rounded-xl border border-[hsl(var(--border))] overflow-hidden">
+    <div className="border-2 overflow-hidden" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
       {/* View Mode Tabs */}
       {hasCompressed && (
-        <div className="flex border-b border-[hsl(var(--border))]">
-          <button
-            onClick={() => setViewMode('comparison')}
-            className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-              viewMode === 'comparison'
-                ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
-                : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]'
-            }`}
-          >
-            Comparison
-          </button>
-          <button
-            onClick={() => setViewMode('before')}
-            className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-              viewMode === 'before'
-                ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
-                : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]'
-            }`}
-          >
-            Before
-          </button>
-          <button
-            onClick={() => setViewMode('after')}
-            className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-              viewMode === 'after'
-                ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
-                : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]'
-            }`}
-          >
-            After
-          </button>
+        <div className="flex border-b-2" style={{ borderColor: 'var(--border)' }}>
+          {(['comparison', 'before', 'after'] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setViewMode(mode)}
+              className="flex-1 px-4 py-2 font-mono text-xs tracking-wider uppercase transition-all relative"
+              style={{
+                color: viewMode === mode ? 'var(--accent)' : 'var(--muted)',
+                backgroundColor: viewMode === mode ? 'var(--background)' : 'transparent',
+              }}
+            >
+              {mode}
+              {viewMode === mode && (
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-0.5"
+                  style={{ backgroundColor: 'var(--accent)' }}
+                />
+              )}
+            </button>
+          ))}
         </div>
       )}
 
       {/* Image Display */}
-      <div className="relative aspect-video bg-[hsl(var(--muted))]">
+      <div className="relative aspect-video scanlines" style={{ backgroundColor: 'var(--background)' }}>
         {image.status === 'compressing' && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-            <div className="w-16 h-16 border-4 border-[hsl(var(--primary))] border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-[hsl(var(--muted-foreground))]">
-              Compressing... {image.progress}%
-            </p>
-            <div className="w-48 h-2 bg-[hsl(var(--background))] rounded-full overflow-hidden">
+            {/* Industrial spinner */}
+            <div className="relative w-16 h-16">
               <div
-                className="h-full bg-[hsl(var(--primary))] transition-all"
-                style={{ width: `${image.progress}%` }}
+                className="absolute inset-0 border-4 animate-spin"
+                style={{
+                  borderColor: 'var(--border)',
+                  borderTopColor: 'var(--accent)',
+                }}
               />
+              <div className="absolute inset-2 border-2" style={{ borderColor: 'var(--border)' }} />
+            </div>
+            <p className="font-mono text-sm tracking-wider" style={{ color: 'var(--muted)' }}>
+              PROCESSING... {image.progress}%
+            </p>
+            {/* Segmented progress bar */}
+            <div className="flex gap-0.5 w-48">
+              {Array.from({ length: 10 }).map((_, i) => {
+                const threshold = (i + 1) * 10;
+                const filled = (image.progress || 0) >= threshold;
+                return (
+                  <div
+                    key={i}
+                    className="h-2 flex-1 transition-colors"
+                    style={{ backgroundColor: filled ? 'var(--accent)' : 'var(--border)' }}
+                  />
+                );
+              })}
             </div>
           </div>
         )}
 
         {image.status === 'error' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[hsl(var(--destructive))]">
-            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-            <p className="text-sm">{image.error || 'Compression failed'}</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+            <div className="w-12 h-12 flex items-center justify-center" style={{ backgroundColor: 'var(--danger)' }}>
+              <svg className="w-6 h-6" style={{ color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <p className="font-mono text-sm" style={{ color: 'var(--danger)' }}>
+              {image.error || 'COMPRESSION FAILED'}
+            </p>
           </div>
         )}
 
@@ -110,11 +116,17 @@ export function ImagePreview({ image }: ImagePreviewProps) {
             className="absolute inset-0 w-full h-full object-contain"
           />
         )}
+
+        {/* Corner frame markers */}
+        <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2 pointer-events-none" style={{ borderColor: 'var(--accent)' }} />
+        <div className="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2 pointer-events-none" style={{ borderColor: 'var(--accent)' }} />
+        <div className="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2 pointer-events-none" style={{ borderColor: 'var(--accent)' }} />
+        <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2 pointer-events-none" style={{ borderColor: 'var(--accent)' }} />
       </div>
 
       {/* File Name */}
-      <div className="px-4 py-2 border-t border-[hsl(var(--border))]">
-        <p className="text-sm font-medium truncate">{image.file.name}</p>
+      <div className="px-4 py-2 border-t-2" style={{ borderColor: 'var(--border)' }}>
+        <p className="font-mono text-sm truncate">{image.file.name}</p>
       </div>
     </div>
   );
