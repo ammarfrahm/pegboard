@@ -7,7 +7,9 @@ interface TextLayersPanelProps {
   layers: TextLayer[];
   selectedLayer: TextLayer | null;
   selectedLayerId: string | null;
+  hoveredLayerId: string | null;
   onSelectLayer: (id: string) => void;
+  onHoverLayer: (id: string | null) => void;
   onAddLayer: () => void;
   onUpdateLayer: (id: string, updates: Partial<TextLayer>) => void;
   onRemoveLayer: (id: string) => void;
@@ -22,7 +24,9 @@ export function TextLayersPanel({
   layers,
   selectedLayer,
   selectedLayerId,
+  hoveredLayerId,
   onSelectLayer,
+  onHoverLayer,
   onAddLayer,
   onUpdateLayer,
   onRemoveLayer,
@@ -172,15 +176,22 @@ export function TextLayersPanel({
 
             {/* Layer Items */}
             <div className="space-y-1 max-h-40 overflow-y-auto">
-              {layers.map((layer, index) => (
+              {layers.map((layer, index) => {
+                const isSelected = selectedLayerId === layer.id;
+                const isHovered = hoveredLayerId === layer.id;
+                const isHighlighted = isSelected || isHovered;
+
+                return (
                 <div
                   key={layer.id}
                   onClick={() => onSelectLayer(layer.id)}
+                  onMouseEnter={() => onHoverLayer(layer.id)}
+                  onMouseLeave={() => onHoverLayer(null)}
                   className="flex items-center gap-2 p-2 border-2 cursor-pointer transition-colors"
                   style={{
-                    borderColor: selectedLayerId === layer.id ? 'var(--accent)' : 'var(--border)',
-                    backgroundColor: selectedLayerId === layer.id ? 'var(--accent)' : 'transparent',
-                    color: selectedLayerId === layer.id ? 'var(--accent-foreground)' : 'var(--foreground)',
+                    borderColor: isHighlighted ? 'var(--accent)' : 'var(--border)',
+                    backgroundColor: isSelected ? 'var(--accent)' : isHovered ? 'rgba(6, 182, 212, 0.1)' : 'transparent',
+                    color: isSelected ? 'var(--accent-foreground)' : 'var(--foreground)',
                   }}
                 >
                   <span className="font-mono text-xs opacity-50">{index + 1}</span>
@@ -230,7 +241,8 @@ export function TextLayersPanel({
                     </button>
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
           </div>
 

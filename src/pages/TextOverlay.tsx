@@ -8,6 +8,7 @@ import { useTextLayers } from '../hooks/useTextLayers';
 export function TextOverlay() {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [filename, setFilename] = useState<string>();
+  const [hoveredLayerId, setHoveredLayerId] = useState<string | null>(null);
 
   const {
     layers,
@@ -75,8 +76,10 @@ export function TextOverlay() {
             image={image}
             layers={layers}
             selectedLayerId={selectedLayerId}
+            hoveredLayerId={hoveredLayerId}
             onSelectLayer={setSelectedLayerId}
             onUpdateLayer={updateLayer}
+            onHoverLayer={setHoveredLayerId}
           />
         </div>
 
@@ -96,7 +99,9 @@ export function TextOverlay() {
             layers={layers}
             selectedLayer={selectedLayer}
             selectedLayerId={selectedLayerId}
+            hoveredLayerId={hoveredLayerId}
             onSelectLayer={setSelectedLayerId}
+            onHoverLayer={setHoveredLayerId}
             onAddLayer={addLayer}
             onUpdateLayer={updateLayer}
             onRemoveLayer={removeLayer}

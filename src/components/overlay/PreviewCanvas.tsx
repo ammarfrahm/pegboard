@@ -6,8 +6,10 @@ interface PreviewCanvasProps {
   image: HTMLImageElement | null;
   layers: TextLayer[];
   selectedLayerId: string | null;
+  hoveredLayerId: string | null;
   onSelectLayer: (id: string | null) => void;
   onUpdateLayer: (id: string, updates: Partial<TextLayer>) => void;
+  onHoverLayer: (id: string | null) => void;
 }
 
 interface SnapGuides {
@@ -126,8 +128,10 @@ export function PreviewCanvas({
   image,
   layers,
   selectedLayerId,
+  hoveredLayerId,
   onSelectLayer,
   onUpdateLayer,
+  onHoverLayer,
 }: PreviewCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
@@ -321,11 +325,13 @@ export function PreviewCanvas({
               key={layer.id}
               layer={layer}
               isSelected={layer.id === selectedLayerId}
+              isHovered={layer.id === hoveredLayerId}
               containerWidth={containerSize.width}
               containerHeight={containerSize.height}
               onSelect={() => onSelectLayer(layer.id)}
               onPositionChange={(x, y) => onUpdateLayer(layer.id, { x, y })}
               onSnapGuidesChange={handleSnapGuidesChange}
+              onHover={(hovered) => onHoverLayer(hovered ? layer.id : null)}
             />
           ))}
         </div>

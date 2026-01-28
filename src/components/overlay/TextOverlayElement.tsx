@@ -9,11 +9,13 @@ interface SnapGuides {
 interface TextOverlayElementProps {
   layer: TextLayer;
   isSelected: boolean;
+  isHovered: boolean;
   containerWidth: number;
   containerHeight: number;
   onSelect: () => void;
   onPositionChange: (x: number, y: number) => void;
   onSnapGuidesChange?: (guides: SnapGuides) => void;
+  onHover?: (hovered: boolean) => void;
 }
 
 const SNAP_THRESHOLD = 2; // percentage threshold for snapping
@@ -21,11 +23,13 @@ const SNAP_THRESHOLD = 2; // percentage threshold for snapping
 export function TextOverlayElement({
   layer,
   isSelected,
+  isHovered,
   containerWidth,
   containerHeight,
   onSelect,
   onPositionChange,
   onSnapGuidesChange,
+  onHover,
 }: TextOverlayElementProps) {
   const elementRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
@@ -155,16 +159,20 @@ export function TextOverlayElement({
 
   const scaledFontSize = layer.fontSize * (containerWidth / 1000);
 
+  const showHighlight = isSelected || isHovered;
+
   return (
     <div
       ref={elementRef}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
+      onMouseEnter={() => onHover?.(true)}
+      onMouseLeave={() => onHover?.(false)}
       onClick={(e) => {
         e.stopPropagation();
         onSelect();
       }}
-      className="absolute cursor-move select-none"
+      className="absolute cursor-move select-none transition-all"
       style={{
         left: `${layer.x}%`,
         top: `${layer.y}%`,
@@ -180,7 +188,7 @@ export function TextOverlayElement({
           ? `${layer.shadowOffsetX * (containerWidth / 1000)}px ${layer.shadowOffsetY * (containerWidth / 1000)}px ${layer.shadowBlur * (containerWidth / 1000)}px ${layer.shadowColor}`
           : 'none',
         whiteSpace: 'pre-wrap',
-        outline: isSelected ? '2px dashed var(--accent)' : 'none',
+        outline: showHighlight ? '2px dashed var(--accent)' : 'none',
         outlineOffset: '4px',
         padding: '4px',
       }}
