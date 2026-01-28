@@ -3,7 +3,7 @@ import type { CompressionPreset } from '../types';
 export const compressionPresets: CompressionPreset[] = [
   {
     name: 'Web Optimized',
-    description: 'Balanced quality for web use (80% quality, max 1920px)',
+    description: '80% quality, max 1920px — Full HD display width, ideal for most websites',
     options: {
       quality: 0.8,
       maxWidth: 1920,
@@ -13,7 +13,7 @@ export const compressionPresets: CompressionPreset[] = [
   },
   {
     name: 'Email',
-    description: 'Smaller files for email attachments (60% quality, max 1200px)',
+    description: '60% quality, max 1200px — Fits email clients with retina support',
     options: {
       quality: 0.6,
       maxWidth: 1200,
@@ -23,7 +23,7 @@ export const compressionPresets: CompressionPreset[] = [
   },
   {
     name: 'Maximum Compression',
-    description: 'Smallest file size (40% quality, max 800px)',
+    description: '40% quality, max 800px — Thumbnails, previews, social media cards',
     options: {
       quality: 0.4,
       maxWidth: 800,
@@ -33,7 +33,7 @@ export const compressionPresets: CompressionPreset[] = [
   },
   {
     name: 'High Quality',
-    description: 'Minimal compression for quality preservation (90% quality)',
+    description: '90% quality, original size — Minimal compression for archival or print',
     options: {
       quality: 0.9,
       maxWidth: undefined,

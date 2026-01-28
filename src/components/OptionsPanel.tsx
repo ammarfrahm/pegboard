@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { compressionPresets } from '../utils/presets';
 import type { CompressionOptions } from '../types';
 
@@ -12,7 +13,10 @@ export function OptionsPanel({
   onOptionsChange,
   disabled = false,
 }: OptionsPanelProps) {
+  const [selectedPreset, setSelectedPreset] = useState<string>('');
+
   const handlePresetChange = (presetName: string) => {
+    setSelectedPreset(presetName);
     const preset = compressionPresets.find((p) => p.name === presetName);
     if (preset) {
       onOptionsChange({
@@ -21,6 +25,8 @@ export function OptionsPanel({
       });
     }
   };
+
+  const currentPreset = compressionPresets.find((p) => p.name === selectedPreset);
 
   return (
     <div className="bg-[hsl(var(--card))] rounded-xl border border-[hsl(var(--border))] p-6 space-y-6">
@@ -34,8 +40,8 @@ export function OptionsPanel({
         <select
           onChange={(e) => handlePresetChange(e.target.value)}
           disabled={disabled}
+          value={selectedPreset}
           className="w-full px-3 py-2 rounded-lg bg-[hsl(var(--background))] border border-[hsl(var(--border))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ring))] disabled:opacity-50"
-          defaultValue=""
         >
           <option value="" disabled>
             Select a preset...
@@ -46,6 +52,11 @@ export function OptionsPanel({
             </option>
           ))}
         </select>
+        {currentPreset && (
+          <p className="text-xs text-[hsl(var(--muted-foreground))]">
+            {currentPreset.description}
+          </p>
+        )}
       </div>
 
       {/* Quality Slider */}
