@@ -53,7 +53,7 @@ export function TextLayersPanel({
         fontFamily: String(item.fontFamily || 'Inter'),
         fontWeight: Number(item.fontWeight) || 400,
         color: String(item.color || '#ffffff'),
-        opacity: Number(item.opacity) ?? 1,
+        opacity: item.opacity !== undefined ? Number(item.opacity) : 1,
         rotation: Number(item.rotation) || 0,
         textAlign: (item.textAlign as 'left' | 'center' | 'right') || 'left',
         shadowEnabled: Boolean(item.shadowEnabled),

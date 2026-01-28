@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 interface DragState {
   isDragging: boolean;
@@ -19,6 +19,7 @@ export function useDraggable(
   options: UseDraggableOptions = {}
 ) {
   const [position, setPosition] = useState({ x: initialX, y: initialY });
+  const [isDragging, setIsDragging] = useState(false);
   const dragState = useRef<DragState>({
     isDragging: false,
     startX: 0,
@@ -26,11 +27,6 @@ export function useDraggable(
     elementStartX: 0,
     elementStartY: 0,
   });
-
-  // Sync position with props
-  useEffect(() => {
-    setPosition({ x: initialX, y: initialY });
-  }, [initialX, initialY]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -43,6 +39,7 @@ export function useDraggable(
       elementStartX: position.x,
       elementStartY: position.y,
     };
+    setIsDragging(true);
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!dragState.current.isDragging) return;
@@ -64,6 +61,7 @@ export function useDraggable(
     const handleMouseUp = () => {
       if (dragState.current.isDragging) {
         dragState.current.isDragging = false;
+        setIsDragging(false);
         options.onDragEnd?.(position.x, position.y);
       }
       document.removeEventListener('mousemove', handleMouseMove);
@@ -78,6 +76,6 @@ export function useDraggable(
     position,
     setPosition,
     handleMouseDown,
-    isDragging: dragState.current.isDragging,
+    isDragging,
   };
 }
