@@ -333,6 +333,7 @@ export function PreviewCanvas({
               isHovered={layer.id === hoveredLayerId}
               containerWidth={containerSize.width}
               containerHeight={containerSize.height}
+              imageNaturalWidth={image.naturalWidth}
               onSelect={() => onSelectLayer(layer.id)}
               onPositionChange={(x, y) => onUpdateLayer(layer.id, { x, y })}
               onSnapGuidesChange={handleSnapGuidesChange}

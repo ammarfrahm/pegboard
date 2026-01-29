@@ -12,6 +12,7 @@ interface TextOverlayElementProps {
   isHovered: boolean;
   containerWidth: number;
   containerHeight: number;
+  imageNaturalWidth: number;
   onSelect: () => void;
   onPositionChange: (x: number, y: number) => void;
   onSnapGuidesChange?: (guides: SnapGuides) => void;
@@ -26,6 +27,7 @@ export function TextOverlayElement({
   isHovered,
   containerWidth,
   containerHeight,
+  imageNaturalWidth,
   onSelect,
   onPositionChange,
   onSnapGuidesChange,
@@ -150,14 +152,16 @@ export function TextOverlayElement({
     document.addEventListener('touchend', handleTouchEnd);
   }, [layer.x, layer.y, containerWidth, containerHeight, onSelect, onPositionChange, onSnapGuidesChange, applySnap]);
 
-  // Calculate scale factor for preview
+  // Calculate scale factor for preview (ratio of preview size to actual image size)
+  const scale = imageNaturalWidth > 0 ? containerWidth / imageNaturalWidth : 1;
+
   useEffect(() => {
     if (elementRef.current) {
-      elementRef.current.style.setProperty('--scale', String(containerWidth / 1000));
+      elementRef.current.style.setProperty('--scale', String(scale));
     }
-  }, [containerWidth]);
+  }, [scale]);
 
-  const scaledFontSize = layer.fontSize * (containerWidth / 1000);
+  const scaledFontSize = layer.fontSize * scale;
 
   const showHighlight = isSelected || isHovered;
 
@@ -185,7 +189,7 @@ export function TextOverlayElement({
         opacity: layer.opacity,
         textAlign: layer.textAlign,
         textShadow: layer.shadowEnabled
-          ? `${layer.shadowOffsetX * (containerWidth / 1000)}px ${layer.shadowOffsetY * (containerWidth / 1000)}px ${layer.shadowBlur * (containerWidth / 1000)}px ${layer.shadowColor}`
+          ? `${layer.shadowOffsetX * scale}px ${layer.shadowOffsetY * scale}px ${layer.shadowBlur * scale}px ${layer.shadowColor}`
           : 'none',
         whiteSpace: 'pre-wrap',
         outline: showHighlight ? '2px dashed var(--accent)' : 'none',
