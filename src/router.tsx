@@ -121,6 +121,9 @@ const overlayRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/overlay',
   component: TextOverlay,
+  validateSearch: (search: Record<string, unknown>): { img?: string } => ({
+    img: typeof search.img === 'string' ? search.img : undefined,
+  }),
 });
 
 // Create Route Tree

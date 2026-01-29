@@ -177,9 +177,8 @@ export function useCanvasExport() {
         // For share links, we compress the image to keep URL shorter
         const base64 = await exportBase64(image, layers, options);
 
-        // Create share URL with base64 in hash (to avoid server-side issues)
-        const baseUrl = window.location.origin + window.location.pathname;
-        const shareUrl = `${baseUrl}#/overlay?img=${encodeURIComponent(base64)}`;
+        // Create share URL with base64 in search params
+        const shareUrl = `${window.location.origin}/overlay?img=${encodeURIComponent(base64)}`;
 
         // Check if URL is too long (most browsers support ~2000 chars in URL)
         if (shareUrl.length > 50000) {

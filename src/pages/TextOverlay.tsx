@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useSearch } from '@tanstack/react-router';
 import { ImageUpload } from '../components/overlay/ImageUpload';
 import { PreviewCanvas } from '../components/overlay/PreviewCanvas';
 import { TextLayersPanel } from '../components/overlay/TextLayersPanel';
@@ -9,6 +10,29 @@ export function TextOverlay() {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [filename, setFilename] = useState<string>();
   const [hoveredLayerId, setHoveredLayerId] = useState<string | null>(null);
+  const [isLoadingFromUrl, setIsLoadingFromUrl] = useState(false);
+
+  // Get search params from URL
+  const search = useSearch({ from: '/overlay' });
+  const imgParam = (search as { img?: string }).img;
+
+  // Load image from URL param on mount
+  useEffect(() => {
+    if (imgParam && !image && !isLoadingFromUrl) {
+      setIsLoadingFromUrl(true);
+      const img = new Image();
+      img.onload = () => {
+        setImage(img);
+        setFilename('shared-image');
+        setIsLoadingFromUrl(false);
+      };
+      img.onerror = () => {
+        console.error('Failed to load image from URL');
+        setIsLoadingFromUrl(false);
+      };
+      img.src = decodeURIComponent(imgParam);
+    }
+  }, [imgParam, image, isLoadingFromUrl]);
 
   const {
     layers,
@@ -40,6 +64,20 @@ export function TextOverlay() {
   }, [image, clearLayers]);
 
   if (!image) {
+    if (isLoadingFromUrl) {
+      return (
+        <div className="max-w-2xl mx-auto animate-fade-up">
+          <div
+            className="border-2 p-12 flex items-center justify-center"
+            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+          >
+            <p className="font-mono text-sm" style={{ color: 'var(--muted)' }}>
+              LOADING SHARED IMAGE...
+            </p>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="max-w-2xl mx-auto animate-fade-up">
         <ImageUpload onImageLoad={handleImageLoad} />
