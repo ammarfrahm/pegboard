@@ -217,6 +217,9 @@ export function PreviewCanvas({
     );
   }
 
+  // Calculate aspect ratio including ruler space (24px each)
+  const totalAspectRatio = (image.naturalWidth + 24) / (image.naturalHeight + 24);
+
   return (
     <div
       ref={containerRef}
@@ -224,6 +227,7 @@ export function PreviewCanvas({
       style={{
         borderColor: 'var(--border)',
         backgroundColor: 'var(--surface)',
+        aspectRatio: `${totalAspectRatio}`,
         maxHeight: '70vh',
       }}
       onMouseMove={handleMouseMove}
