@@ -9,6 +9,7 @@ const FONT_FAMILIES = [
   'Inter',
   'Roboto',
   'JetBrains Mono',
+  'OCR A Std',
   'Playfair Display',
   'Lobster',
   'Pacifico',
