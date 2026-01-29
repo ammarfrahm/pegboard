@@ -221,6 +221,7 @@ export function PreviewCanvas({
   const totalAspectRatio = (image.naturalWidth + 24) / (image.naturalHeight + 24);
 
   return (
+    <>
     <div
       ref={containerRef}
       className="border-2 relative overflow-hidden"
@@ -341,21 +342,24 @@ export function PreviewCanvas({
         </div>
       </div>
 
-      {/* Coordinates Display */}
+    </div>
+
+      {/* Coordinates Display - Outside Canvas */}
       <div
-        className="absolute bottom-2 right-2 px-2 py-1 font-mono text-xs flex gap-4"
-        style={{
-          backgroundColor: 'rgba(0,0,0,0.7)',
-          color: 'var(--muted)',
-        }}
+        className="flex justify-between items-center mt-2 px-1 font-mono text-xs"
+        style={{ color: 'var(--muted)' }}
       >
-        {cursorPos && (
-          <span style={{ color: 'var(--accent)' }}>
-            X:{cursorPos.naturalX} Y:{cursorPos.naturalY}
-          </span>
-        )}
+        <span>
+          {cursorPos ? (
+            <span style={{ color: 'var(--accent)' }}>
+              X:{cursorPos.naturalX} Y:{cursorPos.naturalY}
+            </span>
+          ) : (
+            <span>&nbsp;</span>
+          )}
+        </span>
         <span>{image.naturalWidth} × {image.naturalHeight}</span>
       </div>
-    </div>
+    </>
   );
 }
