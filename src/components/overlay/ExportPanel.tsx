@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { TextLayer } from '../../hooks/useTextLayers';
+import type { TextLayer } from '../../stores/overlayStore';
 import { useCanvasExport } from '../../hooks/useCanvasExport';
 
 interface ExportPanelProps {

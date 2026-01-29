@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import type { TextLayer } from '../../hooks/useTextLayers';
+import type { TextLayer } from '../../stores/overlayStore';
 import { TextOverlayElement } from './TextOverlayElement';
 
 interface PreviewCanvasProps {

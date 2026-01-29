@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import type { TextLayer } from './useTextLayers';
+import type { TextLayer } from '../stores/overlayStore';
 
 interface ExportOptions {
   format: 'png' | 'jpeg';

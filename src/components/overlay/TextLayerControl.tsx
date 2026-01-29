@@ -1,4 +1,4 @@
-import type { TextLayer } from '../../hooks/useTextLayers';
+import type { TextLayer } from '../../stores/overlayStore';
 
 interface TextLayerControlProps {
   layer: TextLayer;

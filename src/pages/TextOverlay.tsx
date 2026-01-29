@@ -1,16 +1,35 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearch } from '@tanstack/react-router';
 import { ImageUpload } from '../components/overlay/ImageUpload';
 import { PreviewCanvas } from '../components/overlay/PreviewCanvas';
 import { TextLayersPanel } from '../components/overlay/TextLayersPanel';
 import { ExportPanel } from '../components/overlay/ExportPanel';
-import { useTextLayers } from '../hooks/useTextLayers';
+import { useOverlayStore } from '../stores/overlayStore';
 
 export function TextOverlay() {
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
-  const [filename, setFilename] = useState<string>();
-  const [hoveredLayerId, setHoveredLayerId] = useState<string | null>(null);
   const [isLoadingFromUrl, setIsLoadingFromUrl] = useState(false);
+
+  // Get state from store
+  const {
+    image,
+    filename,
+    layers,
+    selectedLayerId,
+    hoveredLayerId,
+    setImage,
+    clearImage,
+    addLayer,
+    updateLayer,
+    removeLayer,
+    duplicateLayer,
+    moveLayerUp,
+    moveLayerDown,
+    clearLayers,
+    setLayersFromYaml,
+    setSelectedLayerId,
+    setHoveredLayerId,
+    selectedLayer,
+  } = useOverlayStore();
 
   // Get search params from URL
   const search = useSearch({ from: '/overlay' });
@@ -22,8 +41,7 @@ export function TextOverlay() {
       setIsLoadingFromUrl(true);
       const img = new Image();
       img.onload = () => {
-        setImage(img);
-        setFilename('shared-image');
+        setImage(img, 'shared-image');
         setIsLoadingFromUrl(false);
       };
       img.onerror = () => {
@@ -32,36 +50,11 @@ export function TextOverlay() {
       };
       img.src = decodeURIComponent(imgParam);
     }
-  }, [imgParam, image, isLoadingFromUrl]);
+  }, [imgParam, image, isLoadingFromUrl, setImage]);
 
-  const {
-    layers,
-    selectedLayer,
-    selectedLayerId,
-    setSelectedLayerId,
-    addLayer,
-    updateLayer,
-    removeLayer,
-    duplicateLayer,
-    moveLayerUp,
-    moveLayerDown,
-    clearLayers,
-    setLayersFromYaml,
-  } = useTextLayers();
-
-  const handleImageLoad = useCallback((img: HTMLImageElement, file: File) => {
-    setImage(img);
-    setFilename(file.name);
-  }, []);
-
-  const handleClearImage = useCallback(() => {
-    if (image) {
-      URL.revokeObjectURL(image.src);
-    }
-    setImage(null);
-    setFilename(undefined);
-    clearLayers();
-  }, [image, clearLayers]);
+  const handleImageLoad = (img: HTMLImageElement, file: File) => {
+    setImage(img, file.name);
+  };
 
   if (!image) {
     if (isLoadingFromUrl) {
@@ -100,7 +93,7 @@ export function TextOverlay() {
               + ADD TEXT
             </button>
             <button
-              onClick={handleClearImage}
+              onClick={clearImage}
               className="btn-secondary px-4 py-2 text-sm"
             >
               CLEAR
@@ -135,7 +128,7 @@ export function TextOverlay() {
         <div className="animate-fade-up delay-100">
           <TextLayersPanel
             layers={layers}
-            selectedLayer={selectedLayer}
+            selectedLayer={selectedLayer()}
             selectedLayerId={selectedLayerId}
             hoveredLayerId={hoveredLayerId}
             imageWidth={image.naturalWidth}

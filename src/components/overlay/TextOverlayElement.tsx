@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
-import type { TextLayer } from '../../hooks/useTextLayers';
+import type { TextLayer } from '../../stores/overlayStore';
 
 interface SnapGuides {
   horizontal: boolean;

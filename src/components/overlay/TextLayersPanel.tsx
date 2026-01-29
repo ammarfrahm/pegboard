@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import yaml from 'js-yaml';
-import type { TextLayer } from '../../hooks/useTextLayers';
+import type { TextLayer } from '../../stores/overlayStore';
 import { TextLayerControl } from './TextLayerControl';
 
 interface TextLayersPanelProps {
