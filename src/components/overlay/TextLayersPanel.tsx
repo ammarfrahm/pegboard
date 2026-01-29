@@ -8,6 +8,8 @@ interface TextLayersPanelProps {
   selectedLayer: TextLayer | null;
   selectedLayerId: string | null;
   hoveredLayerId: string | null;
+  imageWidth: number;
+  imageHeight: number;
   onSelectLayer: (id: string) => void;
   onHoverLayer: (id: string | null) => void;
   onAddLayer: () => void;
@@ -25,6 +27,8 @@ export function TextLayersPanel({
   selectedLayer,
   selectedLayerId,
   hoveredLayerId,
+  imageWidth,
+  imageHeight,
   onSelectLayer,
   onHoverLayer,
   onAddLayer,
@@ -48,24 +52,44 @@ export function TextLayersPanel({
       }
 
       let idCounter = 0;
-      const newLayers: TextLayer[] = parsed.map((item: Record<string, unknown>) => ({
-        id: `yaml-${Date.now()}-${++idCounter}`,
-        text: String(item.text || 'Text'),
-        x: Number(item.x) || 50,
-        y: Number(item.y) || 50,
-        fontSize: Number(item.fontSize) || 48,
-        fontFamily: String(item.fontFamily || 'Inter'),
-        fontWeight: Number(item.fontWeight) || 400,
-        color: String(item.color || '#ffffff'),
-        opacity: item.opacity !== undefined ? Number(item.opacity) : 1,
-        rotation: Number(item.rotation) || 0,
-        textAlign: (item.textAlign as 'left' | 'center' | 'right') || 'left',
-        shadowEnabled: Boolean(item.shadowEnabled),
-        shadowColor: String(item.shadowColor || '#000000'),
-        shadowBlur: Number(item.shadowBlur) || 4,
-        shadowOffsetX: Number(item.shadowOffsetX) || 2,
-        shadowOffsetY: Number(item.shadowOffsetY) || 2,
-      }));
+      const newLayers: TextLayer[] = parsed.map((item: Record<string, unknown>) => {
+        // Support both old format (pos_x/pos_y in pixels) and new format (x/y in percentage)
+        const hasPixelPos = item.pos_x !== undefined || item.pos_y !== undefined;
+
+        let x: number, y: number;
+        if (hasPixelPos) {
+          // Convert pixel positions to percentages
+          x = imageWidth > 0 ? (Number(item.pos_x) / imageWidth) * 100 : 50;
+          y = imageHeight > 0 ? (Number(item.pos_y) / imageHeight) * 100 : 50;
+        } else {
+          x = Number(item.x) || 50;
+          y = Number(item.y) || 50;
+        }
+
+        // Support both old format (size/font/font_weight) and new format (fontSize/fontFamily/fontWeight)
+        const fontSize = Number(item.fontSize ?? item.size) || 48;
+        const fontFamily = String(item.fontFamily ?? item.font ?? 'Inter');
+        const fontWeight = Number(item.fontWeight ?? item.font_weight) || 400;
+
+        return {
+          id: `yaml-${Date.now()}-${++idCounter}`,
+          text: String(item.text || 'Text'),
+          x,
+          y,
+          fontSize,
+          fontFamily,
+          fontWeight,
+          color: String(item.color || '#ffffff'),
+          opacity: item.opacity !== undefined ? Number(item.opacity) : 1,
+          rotation: Number(item.rotation) || 0,
+          textAlign: (item.textAlign as 'left' | 'center' | 'right') || 'left',
+          shadowEnabled: Boolean(item.shadowEnabled),
+          shadowColor: String(item.shadowColor || '#000000'),
+          shadowBlur: Number(item.shadowBlur) || 4,
+          shadowOffsetX: Number(item.shadowOffsetX) || 2,
+          shadowOffsetY: Number(item.shadowOffsetY) || 2,
+        };
+      });
 
       onImportYaml(newLayers);
       setYamlError(null);
@@ -76,17 +100,18 @@ export function TextLayersPanel({
   };
 
   const handleExportYaml = () => {
+    // Export in the original format with pixel positions for compatibility
     const exportData = layers.map((layer) => ({
       text: layer.text,
-      x: layer.x,
-      y: layer.y,
-      fontSize: layer.fontSize,
-      fontFamily: layer.fontFamily,
-      fontWeight: layer.fontWeight,
+      pos_x: Math.round((layer.x / 100) * imageWidth),
+      pos_y: Math.round((layer.y / 100) * imageHeight),
+      size: layer.fontSize,
+      font: layer.fontFamily,
+      font_weight: layer.fontWeight,
       color: layer.color,
-      opacity: layer.opacity,
-      rotation: layer.rotation,
-      textAlign: layer.textAlign,
+      ...(layer.opacity !== 1 && { opacity: layer.opacity }),
+      ...(layer.rotation !== 0 && { rotation: layer.rotation }),
+      ...(layer.textAlign !== 'left' && { textAlign: layer.textAlign }),
       ...(layer.shadowEnabled && {
         shadowEnabled: true,
         shadowColor: layer.shadowColor,

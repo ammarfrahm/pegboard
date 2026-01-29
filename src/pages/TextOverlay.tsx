@@ -100,6 +100,8 @@ export function TextOverlay() {
             selectedLayer={selectedLayer}
             selectedLayerId={selectedLayerId}
             hoveredLayerId={hoveredLayerId}
+            imageWidth={image.naturalWidth}
+            imageHeight={image.naturalHeight}
             onSelectLayer={setSelectedLayerId}
             onHoverLayer={setHoveredLayerId}
             onAddLayer={addLayer}
