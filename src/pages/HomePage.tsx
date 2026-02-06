@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { Minimize2, Type } from 'lucide-react';
+import { Minimize2, Type, Braces } from 'lucide-react';
 
 export function HomePage() {
   return (
@@ -11,7 +11,7 @@ export function HomePage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Image Compressor Card */}
         <Link
           to="/compress"
@@ -73,6 +73,39 @@ export function HomePage() {
               </h2>
               <p className="text-sm" style={{ color: 'var(--muted)' }}>
                 Add text overlays to images with drag-and-drop positioning. Customize fonts, colors, and export with precision.
+              </p>
+            </div>
+          </div>
+        </Link>
+
+        {/* JSON Formatter Card */}
+        <Link
+          to="/json"
+          className="group block border-2 p-6 transition-all"
+          style={{
+            borderColor: 'var(--border)',
+            backgroundColor: 'var(--surface)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--accent)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border)';
+          }}
+        >
+          <div className="flex items-start gap-4">
+            <div
+              className="w-12 h-12 flex items-center justify-center shrink-0"
+              style={{ backgroundColor: 'var(--accent)' }}
+            >
+              <Braces className="w-6 h-6" style={{ color: 'var(--accent-foreground)' }} />
+            </div>
+            <div>
+              <h2 className="font-display text-lg tracking-tight mb-2 group-hover:text-[var(--accent)] transition-colors">
+                JSON FORMATTER
+              </h2>
+              <p className="text-sm" style={{ color: 'var(--muted)' }}>
+                Format, minify, and unescape JSON. Paste in raw data and get clean, readable output instantly.
               </p>
             </div>
           </div>

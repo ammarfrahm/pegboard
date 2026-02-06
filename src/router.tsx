@@ -11,6 +11,7 @@ import { useTheme } from './hooks/useTheme';
 import { HomePage } from './pages/HomePage';
 import { CompressPage } from './pages/CompressPage';
 import { TextOverlay } from './pages/TextOverlay';
+import { JsonFormatPage } from './pages/JsonFormatPage';
 
 // Root Layout Component
 function RootLayout() {
@@ -89,6 +90,26 @@ function NavHeader() {
             >
               OVERLAY
             </Link>
+            <Link
+              to="/json"
+              className="px-3 py-1.5 text-sm font-mono transition-all border-2"
+              activeProps={{
+                style: {
+                  backgroundColor: 'var(--accent)',
+                  color: 'var(--accent-foreground)',
+                  borderColor: 'var(--accent)',
+                }
+              }}
+              inactiveProps={{
+                style: {
+                  backgroundColor: 'transparent',
+                  color: 'var(--muted)',
+                  borderColor: 'transparent',
+                }
+              }}
+            >
+              JSON
+            </Link>
           </nav>
         </div>
         <ThemeToggle />
@@ -126,11 +147,19 @@ const overlayRoute = createRoute({
   }),
 });
 
+// Create JSON Route
+const jsonRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/json',
+  component: JsonFormatPage,
+});
+
 // Create Route Tree
 export const routeTree = rootRoute.addChildren([
   indexRoute,
   compressRoute,
   overlayRoute,
+  jsonRoute,
 ]);
 
 // Create and Export Router
