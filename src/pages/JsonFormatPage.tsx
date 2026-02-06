@@ -1,5 +1,6 @@
-import { useState, useCallback, type ClipboardEvent } from 'react';
+import { useState, useCallback, useMemo, type ClipboardEvent } from 'react';
 import { Copy, Check, Trash2 } from 'lucide-react';
+import { JsonTreeViewer } from '../components/json/JsonTreeViewer';
 
 function deepUnescape(value: unknown): unknown {
   if (typeof value === 'string') {
@@ -43,6 +44,19 @@ export function JsonFormatPage() {
   const [copied, setCopied] = useState(false);
   const [minified, setMinified] = useState(false);
   const [unescape, setUnescape] = useState(true);
+  const [selectedPath, setSelectedPath] = useState<string | null>(null);
+  const [pathCopied, setPathCopied] = useState(false);
+
+  const parsedData = useMemo(() => {
+    if (!output || minified) return null;
+    try {
+      return JSON.parse(output);
+    } catch {
+      return null;
+    }
+  }, [output, minified]);
+
+  const showTree = parsedData !== null && !minified;
 
   const process = useCallback((raw: string, unesc: boolean, mini: boolean) => {
     if (!raw.trim()) {
@@ -59,6 +73,7 @@ export function JsonFormatPage() {
     const val = e.target.value;
     setInput(val);
     process(val, unescape, minified);
+    setSelectedPath(null);
   }, [process, unescape, minified]);
 
   const handlePaste = useCallback((e: ClipboardEvent<HTMLTextAreaElement>) => {
@@ -66,6 +81,7 @@ export function JsonFormatPage() {
     e.preventDefault();
     setInput(text);
     process(text, unescape, minified);
+    setSelectedPath(null);
   }, [process, unescape, minified]);
 
   const handleMinifyToggle = useCallback(() => {
@@ -73,6 +89,7 @@ export function JsonFormatPage() {
     const next = !minified;
     setMinified(next);
     process(input, unescape, next);
+    setSelectedPath(null);
   }, [input, minified, unescape, process]);
 
   const handleUnescapeToggle = useCallback(() => {
@@ -81,6 +98,7 @@ export function JsonFormatPage() {
     if (input.trim()) {
       process(input, next, minified);
     }
+    setSelectedPath(null);
   }, [input, unescape, minified, process]);
 
   const handleCopy = useCallback(() => {
@@ -96,7 +114,19 @@ export function JsonFormatPage() {
     setError(null);
     setCopied(false);
     setMinified(false);
+    setSelectedPath(null);
   }, []);
+
+  const handlePathSelect = useCallback((path: string) => {
+    setSelectedPath(path);
+  }, []);
+
+  const handlePathCopy = useCallback(() => {
+    if (!selectedPath) return;
+    navigator.clipboard.writeText(selectedPath);
+    setPathCopied(true);
+    setTimeout(() => setPathCopied(false), 1500);
+  }, [selectedPath]);
 
   const charCount = output.length.toLocaleString();
 
@@ -200,23 +230,62 @@ export function JsonFormatPage() {
           >
             OUTPUT
           </label>
-          <textarea
-            className="font-mono text-sm border-2 w-full min-h-[500px] resize-none p-4 focus:outline-none"
-            style={{
-              borderColor: 'var(--border)',
-              backgroundColor: 'var(--surface)',
-              color: 'var(--foreground)',
-            }}
-            readOnly
-            spellCheck={false}
-            wrap="off"
-            placeholder="Formatted output will appear here..."
-            value={output}
-          />
-          {output && (
-            <p className="font-mono text-xs mt-2" style={{ color: 'var(--muted)' }}>
-              {charCount} chars
-            </p>
+          {showTree ? (
+            <div
+              className="border-2"
+              style={{
+                borderColor: 'var(--border)',
+                backgroundColor: 'var(--surface)',
+                minHeight: 500,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <div className="flex-1 overflow-auto" style={{ maxHeight: 500 }}>
+                <JsonTreeViewer data={parsedData} onPathSelect={handlePathSelect} />
+              </div>
+              {/* Path bar footer */}
+              <div
+                className="font-mono text-xs px-4 py-2 border-t-2 flex items-center justify-between"
+                style={{
+                  color: 'var(--muted)',
+                  borderColor: 'var(--border)',
+                }}
+              >
+                <span
+                  onClick={handlePathCopy}
+                  style={{
+                    cursor: selectedPath ? 'pointer' : 'default',
+                    color: pathCopied ? 'var(--success)' : selectedPath ? 'var(--accent)' : 'var(--muted)',
+                  }}
+                  title={selectedPath ? 'Click to copy path' : undefined}
+                >
+                  {pathCopied ? 'Copied!' : selectedPath ?? '\u00A0'}
+                </span>
+                <span>{charCount} chars</span>
+              </div>
+            </div>
+          ) : (
+            <>
+              <textarea
+                className="font-mono text-sm border-2 w-full min-h-[500px] resize-none p-4 focus:outline-none"
+                style={{
+                  borderColor: 'var(--border)',
+                  backgroundColor: 'var(--surface)',
+                  color: 'var(--foreground)',
+                }}
+                readOnly
+                spellCheck={false}
+                wrap="off"
+                placeholder="Formatted output will appear here..."
+                value={output}
+              />
+              {output && (
+                <p className="font-mono text-xs mt-2" style={{ color: 'var(--muted)' }}>
+                  {charCount} chars
+                </p>
+              )}
+            </>
           )}
         </div>
       </div>
