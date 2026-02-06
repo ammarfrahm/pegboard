@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { Minimize2, Type, Braces } from 'lucide-react';
+import { Minimize2, Type, Braces, ShieldCheck } from 'lucide-react';
 
 export function HomePage() {
   return (
@@ -110,6 +110,23 @@ export function HomePage() {
             </div>
           </div>
         </Link>
+      </div>
+
+      {/* Privacy note */}
+      <div
+        className="mt-12 flex items-center justify-center gap-3 font-mono text-xs"
+        style={{ color: 'var(--muted)' }}
+      >
+        <div
+          className="h-px flex-1 max-w-[60px]"
+          style={{ backgroundColor: 'var(--border)' }}
+        />
+        <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+        <span>100% client-side — your files never leave the browser</span>
+        <div
+          className="h-px flex-1 max-w-[60px]"
+          style={{ backgroundColor: 'var(--border)' }}
+        />
       </div>
     </div>
   );
