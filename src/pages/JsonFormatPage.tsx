@@ -89,18 +89,18 @@ export function JsonFormatPage() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 mb-6 justify-between">
         <div className="flex flex-wrap items-center gap-2">
-          <button className="btn-primary" onClick={handleFormat}>
+          <button className="btn-primary px-4 py-2 text-sm" onClick={handleFormat}>
             FORMAT
           </button>
-          <button className="btn-secondary" onClick={handleUnescape}>
+          <button className="btn-secondary px-4 py-2 text-sm" onClick={handleUnescape}>
             UNESCAPE
           </button>
-          <button className="btn-secondary" onClick={handleMinify}>
+          <button className="btn-secondary px-4 py-2 text-sm" onClick={handleMinify}>
             MINIFY
           </button>
         </div>
         <div className="flex items-center gap-2">
-          <button className="btn-secondary flex items-center gap-2" onClick={handleCopy}>
+          <button className="btn-secondary px-4 py-2 text-sm flex items-center gap-2" onClick={handleCopy}>
             {copied ? (
               <>
                 <Check className="w-4 h-4" />
@@ -113,7 +113,7 @@ export function JsonFormatPage() {
               </>
             )}
           </button>
-          <button className="btn-secondary flex items-center gap-2" onClick={handleClear}>
+          <button className="btn-secondary px-4 py-2 text-sm flex items-center gap-2" onClick={handleClear}>
             <Trash2 className="w-4 h-4" />
             CLEAR
           </button>
