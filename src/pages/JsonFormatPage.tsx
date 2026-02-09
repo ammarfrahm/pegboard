@@ -1,6 +1,8 @@
-import { useState, useCallback, useMemo, type ClipboardEvent } from 'react';
-import { Copy, Check, Trash2 } from 'lucide-react';
+import { useState, useCallback, useMemo, useEffect, useRef, type ClipboardEvent } from 'react';
+import { useSearch } from '@tanstack/react-router';
+import { Copy, Check, Trash2, Share2 } from 'lucide-react';
 import { JsonTreeViewer } from '../components/json/JsonTreeViewer';
+import { compressToBase64, decompressFromBase64 } from '../utils/compression';
 
 function deepUnescape(value: unknown): unknown {
   if (typeof value === 'string') {
@@ -38,6 +40,7 @@ function formatJson(raw: string, unescape: boolean, minify: boolean): { output: 
 }
 
 export function JsonFormatPage() {
+  const search = useSearch({ from: '/json' });
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -46,6 +49,8 @@ export function JsonFormatPage() {
   const [unescape, setUnescape] = useState(true);
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [pathCopied, setPathCopied] = useState(false);
+  const [shareState, setShareState] = useState<'idle' | 'sharing' | 'copied' | 'too-large' | 'warning'>('idle');
+  const hydratedRef = useRef(false);
 
   const parsedData = useMemo(() => {
     if (!output || minified) return null;
@@ -115,6 +120,7 @@ export function JsonFormatPage() {
     setCopied(false);
     setMinified(false);
     setSelectedPath(null);
+    setShareState('idle');
   }, []);
 
   const handlePathSelect = useCallback((path: string) => {
@@ -129,6 +135,64 @@ export function JsonFormatPage() {
   }, [selectedPath]);
 
   const charCount = output.length.toLocaleString();
+
+  // Hydrate from URL params on mount
+  useEffect(() => {
+    if (hydratedRef.current || !search.d) return;
+    hydratedRef.current = true;
+
+    const mini = search.m === true;
+    const unesc = search.u !== false;
+
+    setMinified(mini);
+    setUnescape(unesc);
+
+    decompressFromBase64(decodeURIComponent(search.d))
+      .then((raw) => {
+        setInput(raw);
+        const result = formatJson(raw, unesc, mini);
+        setOutput(result.output);
+        setError(result.error);
+      })
+      .catch(() => {
+        setError('Failed to decompress shared data');
+      });
+  }, [search.d, search.m, search.u]);
+
+  const handleShare = useCallback(async () => {
+    if (!input.trim()) return;
+    setShareState('sharing');
+
+    try {
+      const compressed = await compressToBase64(input);
+      const encoded = encodeURIComponent(compressed);
+
+      const params = new URLSearchParams();
+      params.set('d', encoded);
+      if (minified) params.set('m', 'true');
+      if (!unescape) params.set('u', 'false');
+
+      const url = `${window.location.origin}/json?${params.toString()}`;
+
+      if (url.length > 50_000) {
+        setShareState('too-large');
+        setTimeout(() => setShareState('idle'), 2000);
+        return;
+      }
+
+      await navigator.clipboard.writeText(url);
+
+      if (url.length > 8_000) {
+        setShareState('warning');
+        setTimeout(() => setShareState('idle'), 2000);
+      } else {
+        setShareState('copied');
+        setTimeout(() => setShareState('idle'), 1500);
+      }
+    } catch {
+      setShareState('idle');
+    }
+  }, [input, minified, unescape]);
 
   return (
     <div className="animate-fade-up">
@@ -173,6 +237,32 @@ export function JsonFormatPage() {
               <>
                 <Copy className="w-4 h-4" />
                 COPY
+              </>
+            )}
+          </button>
+          <button
+            className="btn-secondary px-4 py-2 text-sm flex items-center gap-2"
+            onClick={handleShare}
+            disabled={!input.trim() || shareState === 'sharing'}
+          >
+            {shareState === 'sharing' ? (
+              '...'
+            ) : shareState === 'copied' ? (
+              <>
+                <Check className="w-4 h-4" />
+                COPIED!
+              </>
+            ) : shareState === 'warning' ? (
+              <>
+                <Check className="w-4 h-4" />
+                COPIED! (long URL)
+              </>
+            ) : shareState === 'too-large' ? (
+              'TOO LARGE'
+            ) : (
+              <>
+                <Share2 className="w-4 h-4" />
+                SHARE
               </>
             )}
           </button>

@@ -152,6 +152,11 @@ const jsonRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/json',
   component: JsonFormatPage,
+  validateSearch: (search: Record<string, unknown>): { d?: string; m?: boolean; u?: boolean } => ({
+    d: typeof search.d === 'string' ? search.d : undefined,
+    m: search.m === true || search.m === 'true' ? true : undefined,
+    u: search.u === false || search.u === 'false' ? false : undefined,
+  }),
 });
 
 // Create Route Tree
