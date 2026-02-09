@@ -1,7 +1,8 @@
 import { useState, useCallback, useMemo, useEffect, useRef, type ClipboardEvent } from 'react';
 import { useSearch } from '@tanstack/react-router';
-import { Copy, Check, Trash2, Share2 } from 'lucide-react';
+import { Copy, Check, Trash2, Share2, ChevronsUpDown, ChevronsDownUp } from 'lucide-react';
 import { JsonTreeViewer } from '../components/json/JsonTreeViewer';
+import type { ExpandSignal } from '../components/json/JsonTreeNode';
 import { compressToBase64, decompressFromBase64 } from '../utils/compression';
 
 function deepUnescape(value: unknown): unknown {
@@ -50,6 +51,7 @@ export function JsonFormatPage() {
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [pathCopied, setPathCopied] = useState(false);
   const [shareState, setShareState] = useState<'idle' | 'sharing' | 'copied' | 'too-large' | 'warning'>('idle');
+  const [expandSignal, setExpandSignal] = useState<ExpandSignal | null>(null);
   const hydratedRef = useRef(false);
 
   const parsedData = useMemo(() => {
@@ -79,6 +81,7 @@ export function JsonFormatPage() {
     setInput(val);
     process(val, unescape, minified);
     setSelectedPath(null);
+    setExpandSignal(null);
   }, [process, unescape, minified]);
 
   const handlePaste = useCallback((e: ClipboardEvent<HTMLTextAreaElement>) => {
@@ -87,6 +90,7 @@ export function JsonFormatPage() {
     setInput(text);
     process(text, unescape, minified);
     setSelectedPath(null);
+    setExpandSignal(null);
   }, [process, unescape, minified]);
 
   const handleMinifyToggle = useCallback(() => {
@@ -121,6 +125,7 @@ export function JsonFormatPage() {
     setMinified(false);
     setSelectedPath(null);
     setShareState('idle');
+    setExpandSignal(null);
   }, []);
 
   const handlePathSelect = useCallback((path: string) => {
@@ -133,6 +138,13 @@ export function JsonFormatPage() {
     setPathCopied(true);
     setTimeout(() => setPathCopied(false), 1500);
   }, [selectedPath]);
+
+  const handleExpandAll = useCallback(() => {
+    setExpandSignal({ action: 'expand', path: '$', gen: Date.now() });
+  }, []);
+  const handleCollapseAll = useCallback(() => {
+    setExpandSignal({ action: 'collapse', path: '$', gen: Date.now() });
+  }, []);
 
   const charCount = output.length.toLocaleString();
 
@@ -331,8 +343,37 @@ export function JsonFormatPage() {
                 flexDirection: 'column',
               }}
             >
+              <div
+                className="font-mono text-xs px-4 py-1.5 border-b-2 flex items-center gap-3"
+                style={{
+                  borderColor: 'var(--border)',
+                  color: 'var(--muted)',
+                }}
+              >
+                <button
+                  className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+                  style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
+                  onClick={handleExpandAll}
+                >
+                  <ChevronsUpDown className="w-3.5 h-3.5" />
+                  EXPAND ALL
+                </button>
+                <button
+                  className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+                  style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
+                  onClick={handleCollapseAll}
+                >
+                  <ChevronsDownUp className="w-3.5 h-3.5" />
+                  COLLAPSE ALL
+                </button>
+              </div>
               <div className="flex-1 overflow-auto" style={{ maxHeight: 500 }}>
-                <JsonTreeViewer data={parsedData} onPathSelect={handlePathSelect} />
+                <JsonTreeViewer
+                  data={parsedData}
+                  onPathSelect={handlePathSelect}
+                  expandSignal={expandSignal}
+                  onExpandSignal={setExpandSignal}
+                />
               </div>
               {/* Path bar footer */}
               <div

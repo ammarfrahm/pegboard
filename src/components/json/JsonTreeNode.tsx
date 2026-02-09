@@ -1,4 +1,10 @@
-import { useState, memo, useCallback } from 'react';
+import { useState, memo, useCallback, useEffect, useRef } from 'react';
+
+export interface ExpandSignal {
+  action: 'expand' | 'collapse';
+  path: string;   // scope prefix — "$" means all nodes
+  gen: number;     // bumped each trigger so React detects changes
+}
 
 interface JsonTreeNodeProps {
   keyName: string | null;
@@ -7,6 +13,8 @@ interface JsonTreeNodeProps {
   depth: number;
   onPathSelect?: (path: string) => void;
   isLast: boolean;
+  expandSignal?: ExpandSignal | null;
+  onExpandSignal?: (signal: ExpandSignal) => void;
 }
 
 function getType(value: unknown): 'string' | 'number' | 'boolean' | 'null' | 'object' | 'array' {
@@ -22,11 +30,26 @@ function childPath(parentPath: string, key: string | number): string {
   return `${parentPath}["${key}"]`;
 }
 
-const JsonTreeNodeInner = ({ keyName, value, path, depth, onPathSelect, isLast }: JsonTreeNodeProps) => {
-  const [expanded, setExpanded] = useState(depth < 2);
-
+const JsonTreeNodeInner = ({ keyName, value, path, depth, onPathSelect, isLast, expandSignal, onExpandSignal }: JsonTreeNodeProps) => {
   const type = getType(value);
   const isContainer = type === 'object' || type === 'array';
+
+  const [expanded, setExpanded] = useState(() => {
+    if (expandSignal && isContainer && path.startsWith(expandSignal.path)) {
+      return expandSignal.action === 'expand';
+    }
+    return depth < 2;
+  });
+
+  const prevGen = useRef(expandSignal?.gen);
+  useEffect(() => {
+    if (!expandSignal || expandSignal.gen === prevGen.current) return;
+    prevGen.current = expandSignal.gen;
+    if (isContainer && path.startsWith(expandSignal.path)) {
+      setExpanded(expandSignal.action === 'expand');
+    }
+  }, [expandSignal?.gen, expandSignal?.action, expandSignal?.path, isContainer, path]);
+
   const comma = isLast ? '' : ',';
 
   const handleKeyClick = useCallback((e: React.MouseEvent) => {
@@ -34,9 +57,13 @@ const JsonTreeNodeInner = ({ keyName, value, path, depth, onPathSelect, isLast }
     onPathSelect?.(path);
   }, [onPathSelect, path]);
 
-  const handleToggle = useCallback(() => {
-    setExpanded(prev => !prev);
-  }, []);
+  const handleToggle = useCallback((e: React.MouseEvent) => {
+    if (e.altKey && onExpandSignal) {
+      onExpandSignal({ action: expanded ? 'collapse' : 'expand', path, gen: Date.now() });
+    } else {
+      setExpanded(prev => !prev);
+    }
+  }, [expanded, path, onExpandSignal]);
 
   const renderKey = () => {
     if (keyName === null) return null;
@@ -120,6 +147,7 @@ const JsonTreeNodeInner = ({ keyName, value, path, depth, onPathSelect, isLast }
           cursor: 'pointer',
           userSelect: 'none',
         }}
+        title="Alt+click to expand/collapse subtree"
       >
         <span
           style={{
@@ -159,6 +187,8 @@ const JsonTreeNodeInner = ({ keyName, value, path, depth, onPathSelect, isLast }
               depth={depth + 1}
               onPathSelect={onPathSelect}
               isLast={idx === count - 1}
+              expandSignal={expandSignal}
+              onExpandSignal={onExpandSignal}
             />
           ))}
           <div style={{ paddingLeft: depth * 20 }}>
