@@ -1,14 +1,16 @@
-import { useState, useCallback, useMemo, useEffect, useRef, type ClipboardEvent } from 'react';
+import { useState, useCallback, useEffect, useRef, type ClipboardEvent } from 'react';
 import { useSearch } from '@tanstack/react-router';
 import { Copy, Check, Trash2, Share2, ChevronsUpDown, ChevronsDownUp } from 'lucide-react';
 import { JsonTreeViewer } from '../components/json/JsonTreeViewer';
 import type { ExpandSignal } from '../components/json/JsonTreeNode';
 import { compressToBase64, decompressFromBase64 } from '../utils/compression';
+import { BIGINT_TAG, wrapBigInts, unwrapBigInts } from '../utils/bigint';
 
 function deepUnescape(value: unknown): unknown {
   if (typeof value === 'string') {
+    if (value.startsWith(BIGINT_TAG)) return value;
     try {
-      const parsed = JSON.parse(value);
+      const parsed = JSON.parse(wrapBigInts(value));
       return deepUnescape(parsed);
     } catch {
       return value;
@@ -27,16 +29,17 @@ function deepUnescape(value: unknown): unknown {
   return value;
 }
 
-function formatJson(raw: string, unescape: boolean, minify: boolean): { output: string; error: string | null } {
+function formatJson(raw: string, unescape: boolean, minify: boolean): { output: string; parsed: unknown; error: string | null } {
   try {
-    let parsed = JSON.parse(raw);
+    const safe = wrapBigInts(raw);
+    let parsed = JSON.parse(safe);
     if (unescape) {
       parsed = deepUnescape(parsed);
     }
-    const output = minify ? JSON.stringify(parsed) : JSON.stringify(parsed, null, 2);
-    return { output, error: null };
+    const jsonStr = minify ? JSON.stringify(parsed) : JSON.stringify(parsed, null, 2);
+    return { output: unwrapBigInts(jsonStr), parsed, error: null };
   } catch (e) {
-    return { output: '', error: e instanceof Error ? e.message : 'Invalid JSON' };
+    return { output: '', parsed: null, error: e instanceof Error ? e.message : 'Invalid JSON' };
   }
 }
 
@@ -44,6 +47,7 @@ export function JsonFormatPage() {
   const search = useSearch({ from: '/json' });
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
+  const [parsed, setParsed] = useState<unknown>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [minified, setMinified] = useState(false);
@@ -54,25 +58,18 @@ export function JsonFormatPage() {
   const [expandSignal, setExpandSignal] = useState<ExpandSignal | null>(null);
   const hydratedRef = useRef(false);
 
-  const parsedData = useMemo(() => {
-    if (!output || minified) return null;
-    try {
-      return JSON.parse(output);
-    } catch {
-      return null;
-    }
-  }, [output, minified]);
-
-  const showTree = parsedData !== null && !minified;
+  const showTree = parsed !== null && !minified;
 
   const process = useCallback((raw: string, unesc: boolean, mini: boolean) => {
     if (!raw.trim()) {
       setOutput('');
+      setParsed(null);
       setError(null);
       return;
     }
     const result = formatJson(raw, unesc, mini);
     setOutput(result.output);
+    setParsed(result.parsed);
     setError(result.error);
   }, []);
 
@@ -120,6 +117,7 @@ export function JsonFormatPage() {
   const handleClear = useCallback(() => {
     setInput('');
     setOutput('');
+    setParsed(null);
     setError(null);
     setCopied(false);
     setMinified(false);
@@ -164,6 +162,7 @@ export function JsonFormatPage() {
         setInput(raw);
         const result = formatJson(raw, unesc, mini);
         setOutput(result.output);
+        setParsed(result.parsed);
         setError(result.error);
       })
       .catch(() => {
@@ -369,7 +368,7 @@ export function JsonFormatPage() {
               </div>
               <div className="flex-1 overflow-auto" style={{ maxHeight: 500 }}>
                 <JsonTreeViewer
-                  data={parsedData}
+                  data={parsed}
                   onPathSelect={handlePathSelect}
                   expandSignal={expandSignal}
                   onExpandSignal={setExpandSignal}

@@ -1,4 +1,5 @@
 import { useState, memo, useCallback, useEffect, useRef } from 'react';
+import { parseBigIntTag } from '../../utils/bigint';
 
 export interface ExpandSignal {
   action: 'expand' | 'collapse';
@@ -88,7 +89,11 @@ const JsonTreeNodeInner = ({ keyName, value, path, depth, onPathSelect, isLast, 
     let rendered: React.ReactNode;
     let color: string;
 
-    if (type === 'string') {
+    const bigInt = parseBigIntTag(value);
+    if (bigInt !== null) {
+      color = 'var(--success)';
+      rendered = bigInt;
+    } else if (type === 'string') {
       color = 'var(--accent)';
       rendered = `"${value as string}"`;
     } else if (type === 'number') {
