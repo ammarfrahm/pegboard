@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import JSZip from 'jszip';
-import { Download } from 'lucide-react';
+import { Download, ArrowDown } from 'lucide-react';
 import { formatFileSize, calculateSavings, getFileExtension } from '../utils/fileHelpers';
 import type { ImageFile } from '../types';
 
@@ -100,136 +100,107 @@ export function ResultsPanel({ image, images }: ResultsPanelProps) {
   const compressedSizeNum = (image.compressedSize || 0) / 1024;
 
   return (
-    <div className="border-2 p-6 space-y-6" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+    <div className="panel space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="w-2 h-2" style={{ backgroundColor: 'var(--success)' }} />
-        <h2 className="font-mono text-sm font-semibold tracking-wider uppercase" style={{ color: 'var(--muted)' }}>
-          RESULTS
-        </h2>
+        <div className="h-2 w-2 rounded-full bg-ok" />
+        <h2 className="tape-label">Results</h2>
       </div>
 
-      {/* Gauge Stats Display */}
-      <div className="border-2 p-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
+      {/* Stats */}
+      <div className="rounded-xl border border-line bg-well p-4">
         <div className="grid grid-cols-2 gap-4 text-center">
           <div>
-            <p className="font-mono text-xs tracking-wider uppercase mb-1" style={{ color: 'var(--muted)' }}>
-              ORIGINAL
-            </p>
-            <p className="font-mono text-2xl font-bold" style={{ color: 'var(--foreground)' }}>
+            <p className="tape-label mb-1">Original</p>
+            <p className="font-mono text-2xl font-bold">
               <AnimatedNumber value={originalSizeNum} />
-              <span className="text-sm font-normal ml-1" style={{ color: 'var(--muted)' }}>KB</span>
+              <span className="ml-1 text-sm font-normal text-subtle">KB</span>
             </p>
           </div>
           <div>
-            <p className="font-mono text-xs tracking-wider uppercase mb-1" style={{ color: 'var(--muted)' }}>
-              COMPRESSED
-            </p>
-            <p className="font-mono text-2xl font-bold" style={{ color: 'var(--accent)' }}>
+            <p className="tape-label mb-1">Compressed</p>
+            <p className="font-mono text-2xl font-bold text-accent">
               <AnimatedNumber value={compressedSizeNum} />
-              <span className="text-sm font-normal ml-1" style={{ color: 'var(--muted)' }}>KB</span>
+              <span className="ml-1 text-sm font-normal text-subtle">KB</span>
             </p>
           </div>
         </div>
 
         {/* Arrow indicator */}
-        <div className="flex items-center justify-center my-4">
-          <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border)' }} />
-          <svg className="w-6 h-6 mx-2" style={{ color: 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-          <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border)' }} />
+        <div className="my-4 flex items-center justify-center">
+          <div className="h-px flex-1 bg-line" />
+          <ArrowDown className="mx-2 h-5 w-5 text-accent" />
+          <div className="h-px flex-1 bg-line" />
         </div>
 
-        {/* Savings Progress Bar */}
+        {/* Savings */}
         <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="font-mono text-xs tracking-wider uppercase" style={{ color: 'var(--muted)' }}>
-              SAVED
-            </span>
-            <span className="font-mono text-xl font-bold" style={{ color: 'var(--success)' }}>
+          <div className="flex items-center justify-between">
+            <span className="tape-label">Saved</span>
+            <span className="font-mono text-xl font-bold text-ok">
               <AnimatedNumber value={savingsNum} suffix="%" />
             </span>
           </div>
 
-          {/* Segmented progress bar */}
-          <div className="flex gap-0.5">
-            {Array.from({ length: 20 }).map((_, i) => {
-              const threshold = (i + 1) * 5;
-              const filled = savingsNum >= threshold;
-              return (
-                <div
-                  key={i}
-                  className="h-3 flex-1 transition-all duration-300"
-                  style={{
-                    backgroundColor: filled ? 'var(--success)' : 'var(--border)',
-                    transitionDelay: `${i * 20}ms`
-                  }}
-                />
-              );
-            })}
+          <div className="h-2 overflow-hidden rounded-full bg-line">
+            <div
+              className="h-full rounded-full bg-ok transition-all duration-500"
+              style={{ width: `${Math.max(0, Math.min(100, savingsNum))}%` }}
+            />
           </div>
         </div>
       </div>
 
       {/* Compression time */}
       {image.compressionTime && (
-        <p className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
-          PROCESSED IN {image.compressionTime}MS
+        <p className="font-mono text-xs text-subtle">
+          Processed in {image.compressionTime}ms
         </p>
       )}
 
       {/* Download button */}
       <button
         onClick={handleDownloadSingle}
-        className="w-full btn-primary px-4 py-3 flex items-center justify-center gap-2"
+        className="btn-primary flex w-full items-center justify-center gap-2 px-4 py-3"
       >
-        <Download className="w-4 h-4" />
-        DOWNLOAD
+        <Download className="h-4 w-4" />
+        Download
       </button>
 
       {/* Batch Stats */}
       {completedImages.length > 1 && (
-        <div className="space-y-4 pt-4 border-t-2" style={{ borderColor: 'var(--border)' }}>
+        <div className="space-y-4 border-t border-line pt-4">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2" style={{ backgroundColor: 'var(--accent)' }} />
-            <h3 className="font-mono text-xs tracking-wider uppercase" style={{ color: 'var(--muted)' }}>
-              ALL IMAGES ({completedImages.length})
-            </h3>
+            <div className="h-2 w-2 rounded-full bg-accent" />
+            <h3 className="tape-label">All images · {completedImages.length}</h3>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 text-center border-2 p-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
+          <div className="grid grid-cols-2 gap-4 rounded-xl border border-line bg-well p-4 text-center">
             <div>
-              <p className="font-mono text-xs tracking-wider uppercase mb-1" style={{ color: 'var(--muted)' }}>
-                TOTAL ORIGINAL
-              </p>
+              <p className="tape-label mb-1">Total original</p>
               <p className="font-mono text-lg font-bold">{formatFileSize(totalOriginalSize)}</p>
             </div>
             <div>
-              <p className="font-mono text-xs tracking-wider uppercase mb-1" style={{ color: 'var(--muted)' }}>
-                TOTAL COMPRESSED
-              </p>
-              <p className="font-mono text-lg font-bold" style={{ color: 'var(--accent)' }}>
+              <p className="tape-label mb-1">Total compressed</p>
+              <p className="font-mono text-lg font-bold text-accent">
                 {formatFileSize(totalCompressedSize)}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-3 border-2" style={{ borderColor: 'var(--success)', backgroundColor: 'rgba(34, 197, 94, 0.1)' }}>
-            <span className="font-mono text-sm tracking-wider uppercase" style={{ color: 'var(--success)' }}>
-              TOTAL SAVED
-            </span>
-            <span className="font-mono text-xl font-bold" style={{ color: 'var(--success)' }}>
+          <div className="flex items-center justify-between rounded-xl bg-ok/10 p-3">
+            <span className="text-sm font-medium text-ok">Total saved</span>
+            <span className="font-mono text-xl font-bold text-ok">
               <AnimatedNumber value={totalSavingsNum} suffix="%" />
             </span>
           </div>
 
           <button
             onClick={handleDownloadAll}
-            className="w-full btn-secondary px-4 py-3 flex items-center justify-center gap-2"
+            className="btn-secondary flex w-full items-center justify-center gap-2 px-4 py-3"
           >
-            <Download className="w-4 h-4" />
-            DOWNLOAD ALL (ZIP)
+            <Download className="h-4 w-4" />
+            Download all (ZIP)
           </button>
         </div>
       )}

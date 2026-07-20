@@ -12,26 +12,21 @@ export function ImagePreview({ image }: ImagePreviewProps) {
   const hasCompressed = image.status === 'completed' && image.compressedUrl;
 
   return (
-    <div className="border-2 overflow-hidden" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+    <div className="panel overflow-hidden">
       {/* View Mode Tabs */}
       {hasCompressed && (
-        <div className="flex border-b-2" style={{ borderColor: 'var(--border)' }}>
+        <div className="flex border-b border-line">
           {(['comparison', 'before', 'after'] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
-              className="flex-1 px-4 py-2 font-mono text-xs tracking-wider uppercase transition-all relative"
-              style={{
-                color: viewMode === mode ? 'var(--accent)' : 'var(--muted)',
-                backgroundColor: viewMode === mode ? 'var(--background)' : 'transparent',
-              }}
+              className={`relative flex-1 px-4 py-2 text-xs font-medium capitalize transition-colors ${
+                viewMode === mode ? 'bg-well text-accent' : 'text-subtle hover:text-ink'
+              }`}
             >
               {mode}
               {viewMode === mode && (
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-0.5"
-                  style={{ backgroundColor: 'var(--accent)' }}
-                />
+                <div className="absolute inset-x-0 bottom-0 h-0.5 bg-accent" />
               )}
             </button>
           ))}
@@ -39,49 +34,31 @@ export function ImagePreview({ image }: ImagePreviewProps) {
       )}
 
       {/* Image Display */}
-      <div className="relative aspect-video scanlines" style={{ backgroundColor: 'var(--background)' }}>
+      <div className="relative aspect-video bg-well">
         {image.status === 'compressing' && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-            {/* Industrial spinner */}
-            <div className="relative w-16 h-16">
-              <div
-                className="absolute inset-0 border-4 animate-spin"
-                style={{
-                  borderColor: 'var(--border)',
-                  borderTopColor: 'var(--accent)',
-                }}
-              />
-              <div className="absolute inset-2 border-2" style={{ borderColor: 'var(--border)' }} />
-            </div>
-            <p className="font-mono text-sm tracking-wider" style={{ color: 'var(--muted)' }}>
-              PROCESSING... {image.progress}%
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-line border-t-accent" />
+            <p className="font-mono text-sm text-subtle">
+              Processing… {image.progress}%
             </p>
-            {/* Segmented progress bar */}
-            <div className="flex gap-0.5 w-48">
-              {Array.from({ length: 10 }).map((_, i) => {
-                const threshold = (i + 1) * 10;
-                const filled = (image.progress || 0) >= threshold;
-                return (
-                  <div
-                    key={i}
-                    className="h-2 flex-1 transition-colors"
-                    style={{ backgroundColor: filled ? 'var(--accent)' : 'var(--border)' }}
-                  />
-                );
-              })}
+            <div className="h-1.5 w-48 overflow-hidden rounded-full bg-line">
+              <div
+                className="h-full rounded-full bg-accent transition-all"
+                style={{ width: `${image.progress || 0}%` }}
+              />
             </div>
           </div>
         )}
 
         {image.status === 'error' && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            <div className="w-12 h-12 flex items-center justify-center" style={{ backgroundColor: 'var(--danger)' }}>
-              <svg className="w-6 h-6" style={{ color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-bad">
+              <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <p className="font-mono text-sm" style={{ color: 'var(--danger)' }}>
-              {image.error || 'COMPRESSION FAILED'}
+            <p className="text-sm text-bad">
+              {image.error || 'Compression failed'}
             </p>
           </div>
         )}
@@ -90,7 +67,7 @@ export function ImagePreview({ image }: ImagePreviewProps) {
           <img
             src={image.originalUrl}
             alt="Original"
-            className="absolute inset-0 w-full h-full object-contain"
+            className="absolute inset-0 h-full w-full object-contain"
           />
         )}
 
@@ -105,7 +82,7 @@ export function ImagePreview({ image }: ImagePreviewProps) {
           <img
             src={image.originalUrl}
             alt="Before compression"
-            className="absolute inset-0 w-full h-full object-contain"
+            className="absolute inset-0 h-full w-full object-contain"
           />
         )}
 
@@ -113,20 +90,14 @@ export function ImagePreview({ image }: ImagePreviewProps) {
           <img
             src={image.compressedUrl}
             alt="After compression"
-            className="absolute inset-0 w-full h-full object-contain"
+            className="absolute inset-0 h-full w-full object-contain"
           />
         )}
-
-        {/* Corner frame markers */}
-        <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2 pointer-events-none" style={{ borderColor: 'var(--accent)' }} />
-        <div className="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2 pointer-events-none" style={{ borderColor: 'var(--accent)' }} />
-        <div className="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2 pointer-events-none" style={{ borderColor: 'var(--accent)' }} />
-        <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2 pointer-events-none" style={{ borderColor: 'var(--accent)' }} />
       </div>
 
       {/* File Name */}
-      <div className="px-4 py-2 border-t-2" style={{ borderColor: 'var(--border)' }}>
-        <p className="font-mono text-sm truncate">{image.file.name}</p>
+      <div className="border-t border-line px-4 py-2">
+        <p className="truncate font-mono text-sm">{image.file.name}</p>
       </div>
     </div>
   );

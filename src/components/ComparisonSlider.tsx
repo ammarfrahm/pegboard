@@ -85,76 +85,37 @@ export function ComparisonSlider({ beforeUrl, afterUrl }: ComparisonSliderProps)
 
       {/* Slider Line */}
       <div
-        className="absolute top-0 bottom-0 z-10"
+        className="absolute top-0 bottom-0 z-10 w-0.5 bg-accent shadow-[0_0_4px_rgba(0,0,0,0.4)]"
         style={{
           left: `${sliderPosition}%`,
           transform: 'translateX(-50%)',
-          width: '3px',
-          backgroundColor: 'var(--accent)',
-          boxShadow: '0 0 4px rgba(0,0,0,0.5)',
         }}
       >
-        {/* Measurement marks along the line */}
-        {Array.from({ length: 11 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute"
-            style={{
-              top: `${i * 10}%`,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '12px',
-              height: '2px',
-              backgroundColor: 'var(--accent)',
-            }}
-          />
-        ))}
-
-        {/* Diamond Handle */}
+        {/* Round grab handle */}
         <div
-          className="absolute top-1/2 left-1/2 z-20"
+          className="absolute top-1/2 left-1/2 z-20 transition-transform"
           style={{
-            transform: `translate(-50%, -50%) rotate(45deg) ${isDragging ? 'scale(1.1)' : 'scale(1)'}`,
-            transition: 'transform 0.15s ease',
+            transform: `translate(-50%, -50%) ${isDragging ? 'scale(1.1)' : 'scale(1)'}`,
           }}
         >
-          <div
-            className="w-8 h-8 flex items-center justify-center"
-            style={{
-              backgroundColor: 'var(--accent)',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-            }}
-          >
-            <div
-              className="w-3 h-3"
-              style={{
-                transform: 'rotate(-45deg)',
-                backgroundColor: 'var(--accent-foreground)',
-              }}
-            />
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent shadow-md">
+            <svg className="h-4 w-4 text-accent-ink" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 9l-3 3 3 3m8-6l3 3-3 3" />
+            </svg>
           </div>
         </div>
       </div>
 
       {/* Labels */}
-      <div
-        className="absolute top-4 left-4 px-2 py-1 font-mono text-xs tracking-wider uppercase z-10"
-        style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', border: '2px solid var(--border)' }}
-      >
-        BEFORE
+      <div className="absolute top-4 left-4 z-10 rounded-md border border-line bg-surface px-2 py-1 text-xs font-medium">
+        Before
       </div>
-      <div
-        className="absolute top-4 right-4 px-2 py-1 font-mono text-xs tracking-wider uppercase z-10"
-        style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}
-      >
-        AFTER
+      <div className="absolute top-4 right-4 z-10 rounded-md bg-accent px-2 py-1 text-xs font-medium text-accent-ink">
+        After
       </div>
 
       {/* Position indicator */}
-      <div
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 px-2 py-1 font-mono text-xs z-10"
-        style={{ backgroundColor: 'var(--background)', color: 'var(--muted)', border: '2px solid var(--border)' }}
-      >
+      <div className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 rounded-md border border-line bg-surface px-2 py-1 font-mono text-xs text-subtle">
         {Math.round(sliderPosition)}%
       </div>
     </div>

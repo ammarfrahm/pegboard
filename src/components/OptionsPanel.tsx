@@ -8,6 +8,9 @@ interface OptionsPanelProps {
   disabled?: boolean;
 }
 
+const fieldClass =
+  'w-full border border-line bg-well px-3 py-2 font-mono text-sm text-ink transition-colors disabled:opacity-50';
+
 export function OptionsPanel({
   options,
   onOptionsChange,
@@ -29,57 +32,41 @@ export function OptionsPanel({
   const currentPreset = compressionPresets.find((p) => p.name === selectedPreset);
 
   return (
-    <div className="border-2 p-6 space-y-6" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+    <div className="panel space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="w-2 h-2" style={{ backgroundColor: 'var(--accent)' }} />
-        <h2 className="font-mono text-sm font-semibold tracking-wider uppercase" style={{ color: 'var(--muted)' }}>
-          OPTIONS
-        </h2>
+        <div className="h-2 w-2 rounded-full bg-accent" />
+        <h2 className="tape-label">Options</h2>
       </div>
 
       {/* Presets */}
       <div className="space-y-2">
-        <label className="font-mono text-xs tracking-wider uppercase block" style={{ color: 'var(--muted)' }}>
-          PRESET
-        </label>
+        <label className="tape-label block">Preset</label>
         <select
           onChange={(e) => handlePresetChange(e.target.value)}
           disabled={disabled}
           value={selectedPreset}
-          className="w-full px-3 py-2 border-2 font-mono text-sm disabled:opacity-50"
-          style={{
-            backgroundColor: 'var(--background)',
-            borderColor: 'var(--border)',
-            color: 'var(--foreground)',
-          }}
+          className={fieldClass}
         >
           <option value="" disabled>
-            SELECT PRESET...
+            Select a preset…
           </option>
           {compressionPresets.map((preset) => (
             <option key={preset.name} value={preset.name}>
-              {preset.name.toUpperCase()}
+              {preset.name}
             </option>
           ))}
         </select>
         {currentPreset && (
-          <p className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
-            {currentPreset.description}
-          </p>
+          <p className="text-xs text-subtle">{currentPreset.description}</p>
         )}
       </div>
 
       {/* Quality Slider */}
       <div className="space-y-3">
-        <div className="flex justify-between items-center">
-          <label className="font-mono text-xs tracking-wider uppercase" style={{ color: 'var(--muted)' }}>
-            QUALITY
-          </label>
-          <span
-            className="font-mono text-sm font-bold px-2 py-0.5"
-            style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}
-          >
+        <div className="flex items-center justify-between">
+          <label className="tape-label">Quality</label>
+          <span className="rounded-md bg-accent px-2 py-0.5 font-mono text-sm font-semibold text-accent-ink">
             {Math.round(options.quality * 100)}%
           </span>
         </div>
@@ -95,21 +82,19 @@ export function OptionsPanel({
           disabled={disabled}
           className="w-full"
         />
-        <div className="flex justify-between">
-          <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>LOW</span>
-          <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>HIGH</span>
+        <div className="flex justify-between text-xs text-subtle">
+          <span>Low</span>
+          <span>High</span>
         </div>
       </div>
 
       {/* Max Dimensions */}
       <div className="space-y-2">
-        <label className="font-mono text-xs tracking-wider uppercase block" style={{ color: 'var(--muted)' }}>
-          MAX DIMENSIONS (PX)
-        </label>
-        <div className="flex gap-2 items-center">
+        <label className="tape-label block">Max dimensions (px)</label>
+        <div className="flex items-center gap-2">
           <input
             type="number"
-            placeholder="WIDTH"
+            placeholder="Width"
             value={options.maxWidth || ''}
             onChange={(e) =>
               onOptionsChange({
@@ -118,17 +103,12 @@ export function OptionsPanel({
               })
             }
             disabled={disabled}
-            className="flex-1 min-w-0 w-full px-3 py-2 border-2 font-mono text-sm disabled:opacity-50"
-            style={{
-              backgroundColor: 'var(--background)',
-              borderColor: 'var(--border)',
-              color: 'var(--foreground)',
-            }}
+            className={`min-w-0 flex-1 ${fieldClass}`}
           />
-          <span className="font-mono text-lg flex-shrink-0" style={{ color: 'var(--muted)' }}>×</span>
+          <span className="flex-shrink-0 text-lg text-subtle">×</span>
           <input
             type="number"
-            placeholder="HEIGHT"
+            placeholder="Height"
             value={options.maxHeight || ''}
             onChange={(e) =>
               onOptionsChange({
@@ -137,21 +117,14 @@ export function OptionsPanel({
               })
             }
             disabled={disabled}
-            className="flex-1 min-w-0 w-full px-3 py-2 border-2 font-mono text-sm disabled:opacity-50"
-            style={{
-              backgroundColor: 'var(--background)',
-              borderColor: 'var(--border)',
-              color: 'var(--foreground)',
-            }}
+            className={`min-w-0 flex-1 ${fieldClass}`}
           />
         </div>
       </div>
 
       {/* Output Format */}
       <div className="space-y-2">
-        <label className="font-mono text-xs tracking-wider uppercase block" style={{ color: 'var(--muted)' }}>
-          OUTPUT FORMAT
-        </label>
+        <label className="tape-label block">Output format</label>
         <select
           value={options.outputFormat}
           onChange={(e) =>
@@ -161,40 +134,30 @@ export function OptionsPanel({
             })
           }
           disabled={disabled}
-          className="w-full px-3 py-2 border-2 font-mono text-sm disabled:opacity-50"
-          style={{
-            backgroundColor: 'var(--background)',
-            borderColor: 'var(--border)',
-            color: 'var(--foreground)',
-          }}
+          className={fieldClass}
         >
-          <option value="image/webp">WEBP</option>
+          <option value="image/webp">WebP</option>
           <option value="image/jpeg">JPEG</option>
           <option value="image/png">PNG</option>
         </select>
       </div>
 
       {/* EXIF Toggle */}
-      <div className="flex items-center justify-between pt-2 border-t-2" style={{ borderColor: 'var(--border)' }}>
-        <label className="font-mono text-xs tracking-wider uppercase" style={{ color: 'var(--muted)' }}>
-          PRESERVE EXIF
-        </label>
+      <div className="flex items-center justify-between border-t border-line pt-4">
+        <label className="tape-label">Preserve EXIF</label>
         <button
           onClick={() =>
             onOptionsChange({ ...options, preserveExif: !options.preserveExif })
           }
           disabled={disabled}
-          className="relative w-12 h-6 transition-colors disabled:opacity-50"
-          style={{
-            backgroundColor: options.preserveExif ? 'var(--accent)' : 'var(--border)',
-          }}
+          className={`relative h-6 w-11 rounded-full transition-colors disabled:opacity-50 ${
+            options.preserveExif ? 'bg-accent' : 'bg-line'
+          }`}
         >
           <span
-            className="absolute top-1 w-4 h-4 transition-all"
-            style={{
-              backgroundColor: options.preserveExif ? 'var(--accent-foreground)' : 'var(--muted)',
-              left: options.preserveExif ? 'calc(100% - 20px)' : '4px',
-            }}
+            className={`absolute top-1 h-4 w-4 rounded-full bg-surface shadow-sm transition-all ${
+              options.preserveExif ? 'left-[calc(100%-20px)]' : 'left-1'
+            }`}
           />
         </button>
       </div>

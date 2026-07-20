@@ -53,7 +53,7 @@ export function CompressPage() {
     <>
       {images.length === 0 ? (
         <div className="max-w-2xl mx-auto animate-fade-up">
-          <DropZone onFilesAccepted={handleFilesAccepted} hint="JPEG / PNG / WEBP" />
+          <DropZone onFilesAccepted={handleFilesAccepted} hint="JPEG · PNG · WebP" />
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -71,13 +71,13 @@ export function CompressPage() {
                   disabled={isProcessing || images.every(img => img.status === 'completed')}
                   className="btn-primary px-4 py-2 text-sm"
                 >
-                  {isProcessing ? 'PROCESSING...' : 'COMPRESS ALL'}
+                  {isProcessing ? 'Processing…' : 'Compress all'}
                 </button>
                 <button
                   onClick={handleClearAll}
                   className="btn-secondary px-4 py-2 text-sm"
                 >
-                  CLEAR
+                  Clear
                 </button>
               </div>
             </div>
