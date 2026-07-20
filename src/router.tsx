@@ -18,7 +18,7 @@ function RootLayout() {
   useTheme();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
+    <div className="min-h-screen bg-canvas text-ink">
       <NavHeader />
       <main className="mx-auto max-w-7xl px-6 py-8">
         <Outlet />
@@ -27,86 +27,47 @@ function RootLayout() {
   );
 }
 
+const navLinkClass = 'rounded-lg px-3 py-1.5 text-sm font-medium transition-colors';
+
 function NavHeader() {
   return (
-    <header className="border-b-2 px-6 py-4" style={{ borderColor: 'var(--border)' }}>
-      <div className="mx-auto max-w-7xl flex items-center justify-between">
+    <header className="border-b border-line bg-surface/80 px-6 py-3 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div
-              className="w-8 h-8 flex items-center justify-center transition-colors"
-              style={{ backgroundColor: 'var(--accent)' }}
-            >
-              <svg className="w-5 h-5" style={{ color: 'var(--accent-foreground)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <rect x="3" y="3" width="7" height="7" strokeWidth={2} />
-                <rect x="14" y="3" width="7" height="7" strokeWidth={2} />
-                <rect x="3" y="14" width="7" height="7" strokeWidth={2} />
-                <rect x="14" y="14" width="7" height="7" strokeWidth={2} />
+          <Link to="/" className="group flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent transition-transform group-hover:-rotate-6">
+              <svg className="h-5 w-5 text-accent-ink" fill="currentColor" viewBox="0 0 24 24">
+                <circle cx="8" cy="8" r="2.4" />
+                <circle cx="16" cy="8" r="2.4" />
+                <circle cx="8" cy="16" r="2.4" />
+                <circle cx="16" cy="16" r="2.4" />
               </svg>
             </div>
-            <h1 className="font-display text-xl tracking-tight group-hover:text-[var(--accent)] transition-colors">
-              PEGBOARD
-            </h1>
+            <h1 className="font-display text-lg tracking-tight">Pegboard</h1>
           </Link>
 
-          <nav className="flex items-center gap-2 border-l-2 pl-6" style={{ borderColor: 'var(--border)' }}>
+          <nav className="flex items-center gap-1 border-l border-line pl-6">
             <Link
               to="/compress"
-              className="px-3 py-1.5 text-sm font-mono transition-all border-2"
-              activeProps={{
-                style: {
-                  backgroundColor: 'var(--accent)',
-                  color: 'var(--accent-foreground)',
-                  borderColor: 'var(--accent)',
-                }
-              }}
-              inactiveProps={{
-                style: {
-                  backgroundColor: 'transparent',
-                  color: 'var(--muted)',
-                  borderColor: 'transparent',
-                }
-              }}
+              className={navLinkClass}
+              activeProps={{ className: 'bg-accent text-accent-ink' }}
+              inactiveProps={{ className: 'text-subtle hover:bg-well hover:text-ink' }}
             >
-              COMPRESS
+              Compress
             </Link>
             <Link
               to="/overlay"
-              className="px-3 py-1.5 text-sm font-mono transition-all border-2"
-              activeProps={{
-                style: {
-                  backgroundColor: 'var(--accent)',
-                  color: 'var(--accent-foreground)',
-                  borderColor: 'var(--accent)',
-                }
-              }}
-              inactiveProps={{
-                style: {
-                  backgroundColor: 'transparent',
-                  color: 'var(--muted)',
-                  borderColor: 'transparent',
-                }
-              }}
+              className={navLinkClass}
+              activeProps={{ className: 'bg-accent text-accent-ink' }}
+              inactiveProps={{ className: 'text-subtle hover:bg-well hover:text-ink' }}
             >
-              OVERLAY
+              Overlay
             </Link>
             <Link
               to="/json"
-              className="px-3 py-1.5 text-sm font-mono transition-all border-2"
-              activeProps={{
-                style: {
-                  backgroundColor: 'var(--accent)',
-                  color: 'var(--accent-foreground)',
-                  borderColor: 'var(--accent)',
-                }
-              }}
-              inactiveProps={{
-                style: {
-                  backgroundColor: 'transparent',
-                  color: 'var(--muted)',
-                  borderColor: 'transparent',
-                }
-              }}
+              className={navLinkClass}
+              activeProps={{ className: 'bg-accent text-accent-ink' }}
+              inactiveProps={{ className: 'text-subtle hover:bg-well hover:text-ink' }}
             >
               JSON
             </Link>

@@ -7,25 +7,12 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="w-10 h-10 flex items-center justify-center border-2 transition-colors"
-      style={{
-        borderColor: 'var(--border)',
-        backgroundColor: 'transparent',
-        color: 'var(--foreground)',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'var(--accent)';
-        e.currentTarget.style.color = 'var(--accent)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'var(--border)';
-        e.currentTarget.style.color = 'var(--foreground)';
-      }}
-      title={`Current: ${theme}`}
+      className="flex h-9 w-9 items-center justify-center rounded-lg border border-line text-subtle transition-colors hover:border-accent hover:text-accent"
+      title={`Theme: ${theme}`}
     >
-      {theme === 'light' && <Sun className="w-5 h-5" />}
-      {theme === 'dark' && <Moon className="w-5 h-5" />}
-      {theme === 'system' && <Monitor className="w-5 h-5" />}
+      {theme === 'light' && <Sun className="h-4.5 w-4.5" />}
+      {theme === 'dark' && <Moon className="h-4.5 w-4.5" />}
+      {theme === 'system' && <Monitor className="h-4.5 w-4.5" />}
     </button>
   );
 }
