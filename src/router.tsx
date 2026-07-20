@@ -5,6 +5,7 @@ import {
   createRouter,
   Outlet,
   Link,
+  useRouterState,
 } from '@tanstack/react-router';
 import { ThemeToggle } from './components/ThemeToggle';
 import { useTheme } from './hooks/useTheme';
@@ -16,11 +17,14 @@ import { JsonFormatPage } from './pages/JsonFormatPage';
 // Root Layout Component
 function RootLayout() {
   useTheme();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // Data-dense tools get the whole viewport; everything else stays in a column.
+  const fullBleed = pathname.startsWith('/json');
 
   return (
     <div className="min-h-screen bg-canvas text-ink">
       <NavHeader />
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className={fullBleed ? 'px-4 py-4' : 'mx-auto max-w-7xl px-6 py-8'}>
         <Outlet />
       </main>
     </div>

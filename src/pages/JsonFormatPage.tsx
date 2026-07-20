@@ -206,9 +206,9 @@ export function JsonFormatPage() {
   }, [input, minified, unescape]);
 
   return (
-    <div className="animate-fade-up">
+    <div className="animate-fade-up flex flex-col lg:h-[calc(100dvh-6rem)]">
       {/* Toolbar */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-3">
           <button
             className={`${minified ? 'btn-primary' : 'btn-secondary'} px-4 py-2 text-sm`}
@@ -281,12 +281,12 @@ export function JsonFormatPage() {
       </div>
 
       {/* Panels */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid flex-1 grid-cols-1 gap-4 lg:min-h-0 lg:grid-cols-2">
         {/* Input Panel */}
-        <div>
-          <label className="tape-label mb-2 block">Input</label>
+        <div className="flex flex-col lg:min-h-0">
+          <label className="tape-label mb-1.5 block">Input</label>
           <textarea
-            className={`min-h-[500px] w-full resize-none rounded-xl border bg-surface p-4 font-mono text-sm text-ink transition-colors ${
+            className={`h-[50dvh] w-full resize-none rounded-xl border bg-surface p-4 font-mono text-sm text-ink transition-colors lg:h-auto lg:min-h-0 lg:flex-1 ${
               error
                 ? 'border-bad focus:border-bad focus:shadow-[0_0_0_3px_color-mix(in_oklab,var(--danger)_25%,transparent)]'
                 : 'border-line'
@@ -304,10 +304,10 @@ export function JsonFormatPage() {
         </div>
 
         {/* Output Panel */}
-        <div>
-          <label className="tape-label mb-2 block">Output</label>
+        <div className="flex flex-col lg:min-h-0">
+          <label className="tape-label mb-1.5 block">Output</label>
           {showTree ? (
-            <div className="panel flex min-h-[500px] flex-col overflow-hidden">
+            <div className="panel flex h-[70dvh] flex-col overflow-hidden lg:h-auto lg:min-h-0 lg:flex-1">
               <div className="flex items-center gap-4 border-b border-line px-4 py-2 text-xs text-subtle">
                 <button
                   className="flex cursor-pointer items-center gap-1 transition-colors hover:text-ink"
@@ -324,7 +324,7 @@ export function JsonFormatPage() {
                   Collapse all
                 </button>
               </div>
-              <div className="max-h-[500px] flex-1 overflow-auto">
+              <div className="min-h-0 flex-1 overflow-auto">
                 <JsonTreeViewer
                   data={parsed}
                   onPathSelect={handlePathSelect}
@@ -353,7 +353,7 @@ export function JsonFormatPage() {
           ) : (
             <>
               <textarea
-                className="min-h-[500px] w-full resize-none rounded-xl border border-line bg-surface p-4 font-mono text-sm text-ink"
+                className="h-[50dvh] w-full resize-none rounded-xl border border-line bg-surface p-4 font-mono text-sm text-ink lg:h-auto lg:min-h-0 lg:flex-1"
                 readOnly
                 spellCheck={false}
                 wrap="off"
