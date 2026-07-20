@@ -208,15 +208,15 @@ export function JsonFormatPage() {
   return (
     <div className="animate-fade-up">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-2 mb-6 justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-3">
           <button
             className={`${minified ? 'btn-primary' : 'btn-secondary'} px-4 py-2 text-sm`}
             onClick={handleMinifyToggle}
           >
-            {minified ? 'EXPAND' : 'MINIFY'}
+            {minified ? 'Expand' : 'Minify'}
           </button>
-          <label className="flex items-center gap-2 font-mono text-sm cursor-pointer select-none">
+          <label className="flex cursor-pointer select-none items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={unescape}
@@ -224,149 +224,107 @@ export function JsonFormatPage() {
               className="sr-only peer"
             />
             <div
-              className="w-4 h-4 border-2 flex items-center justify-center transition-colors peer-focus-visible:shadow-[0_0_0_2px_var(--accent)]"
-              style={{
-                borderColor: unescape ? 'var(--accent)' : 'var(--border)',
-                backgroundColor: unescape ? 'var(--accent)' : 'transparent',
-              }}
+              className={`flex h-4 w-4 items-center justify-center rounded border transition-colors peer-focus-visible:shadow-[0_0_0_3px_color-mix(in_oklab,var(--accent)_25%,transparent)] ${
+                unescape ? 'border-accent bg-accent' : 'border-line bg-surface'
+              }`}
             >
-              {unescape && (
-                <Check className="w-3 h-3" style={{ color: 'var(--accent-foreground)' }} />
-              )}
+              {unescape && <Check className="h-3 w-3 text-accent-ink" />}
             </div>
-            <span style={{ color: 'var(--muted)' }}>UNESCAPE</span>
+            <span className="text-subtle">Unescape</span>
           </label>
         </div>
         <div className="flex items-center gap-2">
-          <button className="btn-secondary px-4 py-2 text-sm flex items-center gap-2" onClick={handleCopy}>
+          <button className="btn-secondary flex items-center gap-2 px-4 py-2 text-sm" onClick={handleCopy}>
             {copied ? (
               <>
-                <Check className="w-4 h-4" />
-                COPIED!
+                <Check className="h-4 w-4" />
+                Copied
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4" />
-                COPY
+                <Copy className="h-4 w-4" />
+                Copy
               </>
             )}
           </button>
           <button
-            className="btn-secondary px-4 py-2 text-sm flex items-center gap-2"
+            className="btn-secondary flex items-center gap-2 px-4 py-2 text-sm"
             onClick={handleShare}
             disabled={!input.trim() || shareState === 'sharing'}
           >
             {shareState === 'sharing' ? (
-              '...'
+              '\u2026'
             ) : shareState === 'copied' ? (
               <>
-                <Check className="w-4 h-4" />
-                COPIED!
+                <Check className="h-4 w-4" />
+                Copied
               </>
             ) : shareState === 'warning' ? (
               <>
-                <Check className="w-4 h-4" />
-                COPIED! (long URL)
+                <Check className="h-4 w-4" />
+                Copied (long URL)
               </>
             ) : shareState === 'too-large' ? (
-              'TOO LARGE'
+              'Too large to share'
             ) : (
               <>
-                <Share2 className="w-4 h-4" />
-                SHARE
+                <Share2 className="h-4 w-4" />
+                Share
               </>
             )}
           </button>
-          <button className="btn-secondary px-4 py-2 text-sm flex items-center gap-2" onClick={handleClear}>
-            <Trash2 className="w-4 h-4" />
-            CLEAR
+          <button className="btn-secondary flex items-center gap-2 px-4 py-2 text-sm" onClick={handleClear}>
+            <Trash2 className="h-4 w-4" />
+            Clear
           </button>
         </div>
       </div>
 
       {/* Panels */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Input Panel */}
         <div>
-          <label
-            className="font-display text-xs tracking-wider mb-2 block"
-            style={{ color: 'var(--muted)' }}
-          >
-            INPUT
-          </label>
+          <label className="tape-label mb-2 block">Input</label>
           <textarea
-            className="font-mono text-sm border-2 w-full min-h-[500px] resize-none p-4 focus:outline-none transition-colors"
-            style={{
-              borderColor: error ? 'var(--danger)' : 'var(--border)',
-              backgroundColor: 'var(--surface)',
-              color: 'var(--foreground)',
-            }}
-            onFocus={(e) => {
-              if (!error) e.currentTarget.style.borderColor = 'var(--accent)';
-              e.currentTarget.style.boxShadow = `0 0 0 2px ${error ? 'var(--danger)' : 'var(--accent)'}`;
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = error ? 'var(--danger)' : 'var(--border)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
+            className={`min-h-[500px] w-full resize-none rounded-xl border bg-surface p-4 font-mono text-sm text-ink transition-colors ${
+              error
+                ? 'border-bad focus:border-bad focus:shadow-[0_0_0_3px_color-mix(in_oklab,var(--danger)_25%,transparent)]'
+                : 'border-line'
+            }`}
             spellCheck={false}
             wrap="off"
-            placeholder="Paste JSON here..."
+            placeholder="Paste JSON here&#8230;"
             value={input}
             onChange={handleChange}
             onPaste={handlePaste}
           />
           {error && (
-            <p className="font-mono text-xs mt-2" style={{ color: 'var(--danger)' }}>
-              {error}
-            </p>
+            <p className="mt-2 font-mono text-xs text-bad">{error}</p>
           )}
         </div>
 
         {/* Output Panel */}
         <div>
-          <label
-            className="font-display text-xs tracking-wider mb-2 block"
-            style={{ color: 'var(--muted)' }}
-          >
-            OUTPUT
-          </label>
+          <label className="tape-label mb-2 block">Output</label>
           {showTree ? (
-            <div
-              className="border-2"
-              style={{
-                borderColor: 'var(--border)',
-                backgroundColor: 'var(--surface)',
-                minHeight: 500,
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              <div
-                className="font-mono text-xs px-4 py-1.5 border-b-2 flex items-center gap-3"
-                style={{
-                  borderColor: 'var(--border)',
-                  color: 'var(--muted)',
-                }}
-              >
+            <div className="panel flex min-h-[500px] flex-col overflow-hidden">
+              <div className="flex items-center gap-4 border-b border-line px-4 py-2 text-xs text-subtle">
                 <button
-                  className="flex items-center gap-1 hover:opacity-80 transition-opacity"
-                  style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
+                  className="flex cursor-pointer items-center gap-1 transition-colors hover:text-ink"
                   onClick={handleExpandAll}
                 >
-                  <ChevronsUpDown className="w-3.5 h-3.5" />
-                  EXPAND ALL
+                  <ChevronsUpDown className="h-3.5 w-3.5" />
+                  Expand all
                 </button>
                 <button
-                  className="flex items-center gap-1 hover:opacity-80 transition-opacity"
-                  style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
+                  className="flex cursor-pointer items-center gap-1 transition-colors hover:text-ink"
                   onClick={handleCollapseAll}
                 >
-                  <ChevronsDownUp className="w-3.5 h-3.5" />
-                  COLLAPSE ALL
+                  <ChevronsDownUp className="h-3.5 w-3.5" />
+                  Collapse all
                 </button>
               </div>
-              <div className="flex-1 overflow-auto" style={{ maxHeight: 500 }}>
+              <div className="max-h-[500px] flex-1 overflow-auto">
                 <JsonTreeViewer
                   data={parsed}
                   onPathSelect={handlePathSelect}
@@ -375,22 +333,19 @@ export function JsonFormatPage() {
                 />
               </div>
               {/* Path bar footer */}
-              <div
-                className="font-mono text-xs px-4 py-2 border-t-2 flex items-center justify-between"
-                style={{
-                  color: 'var(--muted)',
-                  borderColor: 'var(--border)',
-                }}
-              >
+              <div className="flex items-center justify-between border-t border-line px-4 py-2 font-mono text-xs text-subtle">
                 <span
                   onClick={handlePathCopy}
-                  style={{
-                    cursor: selectedPath ? 'pointer' : 'default',
-                    color: pathCopied ? 'var(--success)' : selectedPath ? 'var(--accent)' : 'var(--muted)',
-                  }}
+                  className={
+                    pathCopied
+                      ? 'text-ok'
+                      : selectedPath
+                        ? 'cursor-pointer text-accent'
+                        : ''
+                  }
                   title={selectedPath ? 'Click to copy path' : undefined}
                 >
-                  {pathCopied ? 'Copied!' : selectedPath ?? '\u00A0'}
+                  {pathCopied ? 'Copied' : selectedPath ?? '\u00A0'}
                 </span>
                 <span>{charCount} chars</span>
               </div>
@@ -398,22 +353,15 @@ export function JsonFormatPage() {
           ) : (
             <>
               <textarea
-                className="font-mono text-sm border-2 w-full min-h-[500px] resize-none p-4 focus:outline-none"
-                style={{
-                  borderColor: 'var(--border)',
-                  backgroundColor: 'var(--surface)',
-                  color: 'var(--foreground)',
-                }}
+                className="min-h-[500px] w-full resize-none rounded-xl border border-line bg-surface p-4 font-mono text-sm text-ink"
                 readOnly
                 spellCheck={false}
                 wrap="off"
-                placeholder="Formatted output will appear here..."
+                placeholder="Formatted output will appear here&#8230;"
                 value={output}
               />
               {output && (
-                <p className="font-mono text-xs mt-2" style={{ color: 'var(--muted)' }}>
-                  {charCount} chars
-                </p>
+                <p className="mt-2 font-mono text-xs text-subtle">{charCount} chars</p>
               )}
             </>
           )}
