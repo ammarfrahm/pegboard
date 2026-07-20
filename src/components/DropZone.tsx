@@ -27,8 +27,8 @@ export function DropZone({
   multiple = true,
   accept = defaultAccept,
   icon: Icon = ImagePlus,
-  label = 'DROP IMAGES HERE',
-  compactLabel = 'ADD MORE',
+  label = 'Drop images here',
+  compactLabel = 'Add more',
   hint,
 }: DropZoneProps) {
   const onDrop = useCallback(
@@ -48,20 +48,15 @@ export function DropZone({
     return (
       <div
         {...getRootProps()}
-        className="flex items-center gap-2 px-4 py-2 cursor-pointer transition-all border-2 border-dashed"
-        style={{
-          borderColor: isDragActive ? 'var(--accent)' : 'var(--border)',
-          backgroundColor: isDragActive ? 'rgba(6, 182, 212, 0.1)' : 'transparent',
-        }}
+        className={`flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-4 py-2 transition-colors ${
+          isDragActive
+            ? 'border-accent bg-accent/10 text-accent'
+            : 'border-line text-subtle hover:border-accent hover:text-accent'
+        }`}
       >
         <input {...getInputProps()} />
-        <Plus
-          className="w-5 h-5"
-          style={{ color: isDragActive ? 'var(--accent)' : 'var(--muted)' }}
-        />
-        <span className="font-mono text-sm" style={{ color: 'var(--muted)' }}>
-          {compactLabel}
-        </span>
+        <Plus className="h-5 w-5" />
+        <span className="text-sm font-medium">{compactLabel}</span>
       </div>
     );
   }
@@ -69,53 +64,38 @@ export function DropZone({
   return (
     <div
       {...getRootProps()}
-      className="relative flex flex-col items-center justify-center p-16 cursor-pointer transition-all border-2 border-dashed overflow-hidden"
-      style={{
-        borderColor: isDragActive ? 'var(--accent)' : 'var(--border)',
-        backgroundColor: isDragActive ? 'rgba(6, 182, 212, 0.05)' : 'var(--surface)',
-        transform: isDragActive ? 'scale(1.01)' : 'scale(1)',
-      }}
+      className={`relative flex cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed p-16 transition-all ${
+        isDragActive ? 'scale-[1.01] border-accent bg-accent/5' : 'border-line bg-surface'
+      }`}
     >
       <input {...getInputProps()} />
 
-      {/* Grid pattern overlay on hover */}
+      {/* Peg-hole grid glows through while dragging */}
       <div
-        className="absolute inset-0 transition-opacity pointer-events-none"
+        className={`pointer-events-none absolute inset-0 transition-opacity ${
+          isDragActive ? 'opacity-30' : 'opacity-0'
+        }`}
         style={{
-          opacity: isDragActive ? 1 : 0,
-          backgroundImage:
-            'linear-gradient(var(--accent) 1px, transparent 1px), linear-gradient(90deg, var(--accent) 1px, transparent 1px)',
-          backgroundSize: '20px 20px',
+          backgroundImage: 'radial-gradient(circle, var(--accent) 1.5px, transparent 1.6px)',
+          backgroundSize: '26px 26px',
         }}
       />
 
-      {/* Corner markers */}
-      <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2" style={{ borderColor: isDragActive ? 'var(--accent)' : 'var(--border)' }} />
-      <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2" style={{ borderColor: isDragActive ? 'var(--accent)' : 'var(--border)' }} />
-      <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2" style={{ borderColor: isDragActive ? 'var(--accent)' : 'var(--border)' }} />
-      <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2" style={{ borderColor: isDragActive ? 'var(--accent)' : 'var(--border)' }} />
+      <div className="relative flex flex-col items-center gap-5">
+        <div
+          className={`flex h-14 w-14 items-center justify-center rounded-xl transition-colors ${
+            isDragActive ? 'bg-accent text-accent-ink' : 'bg-well text-subtle'
+          }`}
+        >
+          <Icon className="h-7 w-7" strokeWidth={1.5} />
+        </div>
 
-      <div className="relative flex flex-col items-center gap-6">
-        <Icon
-          className="w-12 h-12 transition-colors"
-          style={{
-            color: isDragActive ? 'var(--accent)' : 'var(--muted)',
-          }}
-          strokeWidth={1.5}
-        />
-
-        <div className="text-center space-y-2">
-          <p className="font-display text-lg tracking-wide">
-            {isDragActive ? 'DROP HERE' : label}
+        <div className="space-y-1.5 text-center">
+          <p className="font-display text-lg tracking-tight">
+            {isDragActive ? 'Drop it here' : label}
           </p>
-          <p className="font-mono text-sm" style={{ color: 'var(--muted)' }}>
-            OR CLICK TO BROWSE
-          </p>
-          {hint && (
-            <p className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
-              {hint}
-            </p>
-          )}
+          <p className="text-sm text-subtle">or click to browse</p>
+          {hint && <p className="tape-label pt-1">{hint}</p>}
         </div>
       </div>
     </div>

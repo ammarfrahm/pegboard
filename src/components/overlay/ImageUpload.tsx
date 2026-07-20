@@ -28,8 +28,8 @@ export function ImageUpload({ onImageLoad, compact }: ImageUploadProps) {
       compact={compact}
       multiple={false}
       accept={accept}
-      label="DROP IMAGE HERE"
-      compactLabel="CHANGE IMAGE"
+      label="Drop an image here"
+      compactLabel="Change image"
     />
   );
 }
