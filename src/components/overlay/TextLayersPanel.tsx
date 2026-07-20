@@ -124,32 +124,25 @@ export function TextLayersPanel({
   };
 
   return (
-    <div
-      className="border-2 overflow-hidden"
-      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
-    >
+    <div className="panel overflow-hidden">
       {/* Tabs */}
-      <div className="flex border-b-2" style={{ borderColor: 'var(--border)' }}>
+      <div className="flex border-b border-line">
         <button
           onClick={() => setActiveTab('manual')}
-          className="flex-1 px-4 py-2 font-mono text-sm transition-colors"
-          style={{
-            backgroundColor: activeTab === 'manual' ? 'var(--accent)' : 'transparent',
-            color: activeTab === 'manual' ? 'var(--accent-foreground)' : 'var(--muted)',
-          }}
+          className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === 'manual' ? 'bg-accent text-accent-ink' : 'text-subtle hover:text-ink'
+          }`}
         >
-          LAYERS
+          Layers
         </button>
         <button
           onClick={() => {
             setActiveTab('yaml');
             if (layers.length > 0) handleExportYaml();
           }}
-          className="flex-1 px-4 py-2 font-mono text-sm transition-colors"
-          style={{
-            backgroundColor: activeTab === 'yaml' ? 'var(--accent)' : 'transparent',
-            color: activeTab === 'yaml' ? 'var(--accent-foreground)' : 'var(--muted)',
-          }}
+          className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === 'yaml' ? 'bg-accent text-accent-ink' : 'text-subtle hover:text-ink'
+          }`}
         >
           YAML
         </button>
@@ -159,41 +152,23 @@ export function TextLayersPanel({
         <div className="p-4">
           {/* Layer List */}
           <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
-                {layers.length} LAYER{layers.length !== 1 ? 'S' : ''}
+            <div className="mb-2 flex items-center justify-between">
+              <span className="tape-label">
+                {layers.length} layer{layers.length !== 1 ? 's' : ''}
               </span>
               <div className="flex gap-2">
                 <button
                   onClick={onAddLayer}
-                  className="px-2 py-1 border-2 font-mono text-xs transition-colors"
-                  style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--accent)';
-                    e.currentTarget.style.color = 'var(--accent)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--border)';
-                    e.currentTarget.style.color = 'var(--foreground)';
-                  }}
+                  className="rounded-md border border-line px-2 py-1 text-xs font-medium transition-colors hover:border-accent hover:text-accent"
                 >
-                  + ADD
+                  + Add
                 </button>
                 {layers.length > 0 && (
                   <button
                     onClick={onClearLayers}
-                    className="px-2 py-1 border-2 font-mono text-xs transition-colors"
-                    style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--danger)';
-                      e.currentTarget.style.color = 'var(--danger)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--border)';
-                      e.currentTarget.style.color = 'var(--muted)';
-                    }}
+                    className="rounded-md border border-line px-2 py-1 text-xs font-medium text-subtle transition-colors hover:border-bad hover:text-bad"
                   >
-                    CLEAR
+                    Clear
                   </button>
                 )}
               </div>
@@ -212,16 +187,17 @@ export function TextLayersPanel({
                   onClick={() => onSelectLayer(layer.id)}
                   onMouseEnter={() => onHoverLayer(layer.id)}
                   onMouseLeave={() => onHoverLayer(null)}
-                  className="flex items-center gap-2 p-2 border-2 cursor-pointer transition-colors"
-                  style={{
-                    borderColor: isHighlighted ? 'var(--accent)' : 'var(--border)',
-                    backgroundColor: isSelected ? 'var(--accent)' : isHovered ? 'rgba(6, 182, 212, 0.1)' : 'transparent',
-                    color: isSelected ? 'var(--accent-foreground)' : 'var(--foreground)',
-                  }}
+                  className={`flex cursor-pointer items-center gap-2 rounded-lg border p-2 transition-colors ${
+                    isSelected
+                      ? 'border-accent bg-accent text-accent-ink'
+                      : isHighlighted
+                        ? 'border-accent bg-accent/10'
+                        : 'border-line'
+                  }`}
                 >
                   <span className="font-mono text-xs opacity-50">{index + 1}</span>
-                  <span className="flex-1 font-mono text-sm truncate">
-                    {layer.text.slice(0, 20)}{layer.text.length > 20 ? '...' : ''}
+                  <span className="flex-1 truncate text-sm">
+                    {layer.text.slice(0, 20)}{layer.text.length > 20 ? '…' : ''}
                   </span>
                   <div className="flex gap-1">
                     <button
@@ -273,7 +249,7 @@ export function TextLayersPanel({
 
           {/* Selected Layer Controls */}
           {selectedLayer && (
-            <div className="border-t-2 pt-4" style={{ borderColor: 'var(--border)' }}>
+            <div className="border-t border-line pt-4">
               <TextLayerControl
                 layer={selectedLayer}
                 onChange={(updates) => onUpdateLayer(selectedLayer.id, updates)}
@@ -283,21 +259,16 @@ export function TextLayersPanel({
         </div>
       ) : (
         <div className="p-4">
-          <p className="font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-            IMPORT/EXPORT YAML
-          </p>
+          <p className="tape-label mb-2">Import / export YAML</p>
           <textarea
             value={yamlInput}
             onChange={(e) => {
               setYamlInput(e.target.value);
               setYamlError(null);
             }}
-            className="w-full h-64 px-3 py-2 border-2 font-mono text-xs resize-none"
-            style={{
-              borderColor: yamlError ? 'var(--danger)' : 'var(--border)',
-              backgroundColor: 'var(--background)',
-              color: 'var(--foreground)',
-            }}
+            className={`h-64 w-full resize-none border bg-well px-3 py-2 font-mono text-xs text-ink ${
+              yamlError ? 'border-bad' : 'border-line'
+            }`}
             placeholder={`- text: "Hello World"
   x: 50
   y: 50
@@ -306,22 +277,20 @@ export function TextLayersPanel({
   color: "#ffffff"`}
           />
           {yamlError && (
-            <p className="font-mono text-xs mt-2" style={{ color: 'var(--danger)' }}>
-              {yamlError}
-            </p>
+            <p className="mt-2 font-mono text-xs text-bad">{yamlError}</p>
           )}
-          <div className="flex gap-2 mt-3">
+          <div className="mt-3 flex gap-2">
             <button
               onClick={handleYamlImport}
-              className="flex-1 btn-primary px-4 py-2 text-sm"
+              className="btn-primary flex-1 px-4 py-2 text-sm"
             >
-              IMPORT
+              Import
             </button>
             <button
               onClick={handleExportYaml}
-              className="flex-1 btn-secondary px-4 py-2 text-sm"
+              className="btn-secondary flex-1 px-4 py-2 text-sm"
             >
-              EXPORT
+              Export
             </button>
           </div>
         </div>

@@ -31,23 +31,18 @@ const FONT_WEIGHTS = [
   { value: 900, label: 'Black' },
 ];
 
+const fieldClass = 'w-full border border-line bg-well px-3 py-2 text-sm text-ink';
+
 export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
   return (
     <div className="space-y-4">
       {/* Text Input */}
       <div>
-        <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-          TEXT
-        </label>
+        <label className="tape-label mb-2 block">Text</label>
         <textarea
           value={layer.text}
           onChange={(e) => onChange({ text: e.target.value })}
-          className="w-full px-3 py-2 border-2 font-mono text-sm resize-none"
-          style={{
-            borderColor: 'var(--border)',
-            backgroundColor: 'var(--surface)',
-            color: 'var(--foreground)',
-          }}
+          className={`${fieldClass} resize-none font-mono`}
           rows={2}
         />
       </div>
@@ -55,18 +50,11 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
       {/* Font Settings */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-            FONT
-          </label>
+          <label className="tape-label mb-2 block">Font</label>
           <select
             value={layer.fontFamily}
             onChange={(e) => onChange({ fontFamily: e.target.value })}
-            className="w-full px-3 py-2 border-2 text-sm"
-            style={{
-              borderColor: 'var(--border)',
-              backgroundColor: 'var(--surface)',
-              color: 'var(--foreground)',
-            }}
+            className={fieldClass}
           >
             {FONT_FAMILIES.map((font) => (
               <option key={font} value={font}>
@@ -77,18 +65,11 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
         </div>
 
         <div>
-          <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-            WEIGHT
-          </label>
+          <label className="tape-label mb-2 block">Weight</label>
           <select
             value={layer.fontWeight}
             onChange={(e) => onChange({ fontWeight: Number(e.target.value) })}
-            className="w-full px-3 py-2 border-2 text-sm"
-            style={{
-              borderColor: 'var(--border)',
-              backgroundColor: 'var(--surface)',
-              color: 'var(--foreground)',
-            }}
+            className={fieldClass}
           >
             {FONT_WEIGHTS.map((weight) => (
               <option key={weight.value} value={weight.value}>
@@ -102,9 +83,7 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
       {/* Size and Color */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-            SIZE: {layer.fontSize}px
-          </label>
+          <label className="tape-label mb-2 block">Size · {layer.fontSize}px</label>
           <input
             type="range"
             min="12"
@@ -116,31 +95,19 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
         </div>
 
         <div>
-          <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-            COLOR
-          </label>
-          <div className="flex gap-2 items-center">
+          <label className="tape-label mb-2 block">Color</label>
+          <div className="flex items-center gap-2">
             <input
               type="color"
               value={layer.color}
               onChange={(e) => onChange({ color: e.target.value })}
-              className="shrink-0 border-2 cursor-pointer p-0"
-              style={{
-                borderColor: 'var(--border)',
-                width: '32px',
-                height: '32px',
-              }}
+              className="h-8 w-8 shrink-0 cursor-pointer rounded-lg border border-line p-0"
             />
             <input
               type="text"
               value={layer.color}
               onChange={(e) => onChange({ color: e.target.value })}
-              className="w-full min-w-0 px-2 py-1 border-2 font-mono text-xs"
-              style={{
-                borderColor: 'var(--border)',
-                backgroundColor: 'var(--surface)',
-                color: 'var(--foreground)',
-              }}
+              className="w-full min-w-0 border border-line bg-well px-2 py-1 font-mono text-xs text-ink"
               maxLength={7}
             />
           </div>
@@ -150,9 +117,7 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
       {/* Position */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-            X: {layer.x.toFixed(1)}%
-          </label>
+          <label className="tape-label mb-2 block">X · {layer.x.toFixed(1)}%</label>
           <input
             type="range"
             min="0"
@@ -165,9 +130,7 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
         </div>
 
         <div>
-          <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-            Y: {layer.y.toFixed(1)}%
-          </label>
+          <label className="tape-label mb-2 block">Y · {layer.y.toFixed(1)}%</label>
           <input
             type="range"
             min="0"
@@ -183,9 +146,7 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
       {/* Rotation and Opacity */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-            ROTATION: {layer.rotation}°
-          </label>
+          <label className="tape-label mb-2 block">Rotation · {layer.rotation}°</label>
           <input
             type="range"
             min="-180"
@@ -197,9 +158,7 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
         </div>
 
         <div>
-          <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-            OPACITY: {Math.round(layer.opacity * 100)}%
-          </label>
+          <label className="tape-label mb-2 block">Opacity · {Math.round(layer.opacity * 100)}%</label>
           <input
             type="range"
             min="0"
@@ -214,20 +173,17 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
 
       {/* Text Align */}
       <div>
-        <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-          ALIGNMENT
-        </label>
+        <label className="tape-label mb-2 block">Alignment</label>
         <div className="flex gap-2">
           {(['left', 'center', 'right'] as const).map((align) => (
             <button
               key={align}
               onClick={() => onChange({ textAlign: align })}
-              className="flex-1 px-3 py-2 border-2 font-mono text-xs uppercase transition-colors"
-              style={{
-                borderColor: layer.textAlign === align ? 'var(--accent)' : 'var(--border)',
-                backgroundColor: layer.textAlign === align ? 'var(--accent)' : 'transparent',
-                color: layer.textAlign === align ? 'var(--accent-foreground)' : 'var(--foreground)',
-              }}
+              className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium capitalize transition-colors ${
+                layer.textAlign === align
+                  ? 'border-accent bg-accent text-accent-ink'
+                  : 'border-line text-subtle hover:border-accent hover:text-accent'
+              }`}
             >
               {align}
             </button>
@@ -236,38 +192,31 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
       </div>
 
       {/* Shadow Settings */}
-      <div className="border-t-2 pt-4" style={{ borderColor: 'var(--border)' }}>
-        <label className="flex items-center gap-2 cursor-pointer mb-3">
+      <div className="border-t border-line pt-4">
+        <label className="mb-3 flex cursor-pointer items-center gap-2">
           <input
             type="checkbox"
             checked={layer.shadowEnabled}
             onChange={(e) => onChange({ shadowEnabled: e.target.checked })}
-            className="w-4 h-4"
+            className="h-4 w-4 accent-[var(--accent)]"
           />
-          <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
-            TEXT SHADOW
-          </span>
+          <span className="tape-label">Text shadow</span>
         </label>
 
         {layer.shadowEnabled && (
           <div className="space-y-3 pl-6">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-mono text-xs mb-1" style={{ color: 'var(--muted)' }}>
-                  COLOR
-                </label>
+                <label className="tape-label mb-1 block">Color</label>
                 <input
                   type="color"
                   value={layer.shadowColor}
                   onChange={(e) => onChange({ shadowColor: e.target.value })}
-                  className="w-full h-8 border-2 cursor-pointer"
-                  style={{ borderColor: 'var(--border)' }}
+                  className="h-8 w-full cursor-pointer rounded-lg border border-line"
                 />
               </div>
               <div>
-                <label className="block font-mono text-xs mb-1" style={{ color: 'var(--muted)' }}>
-                  BLUR: {layer.shadowBlur}
-                </label>
+                <label className="tape-label mb-1 block">Blur · {layer.shadowBlur}</label>
                 <input
                   type="range"
                   min="0"
@@ -280,9 +229,7 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-mono text-xs mb-1" style={{ color: 'var(--muted)' }}>
-                  OFFSET X: {layer.shadowOffsetX}
-                </label>
+                <label className="tape-label mb-1 block">Offset X · {layer.shadowOffsetX}</label>
                 <input
                   type="range"
                   min="-20"
@@ -293,9 +240,7 @@ export function TextLayerControl({ layer, onChange }: TextLayerControlProps) {
                 />
               </div>
               <div>
-                <label className="block font-mono text-xs mb-1" style={{ color: 'var(--muted)' }}>
-                  OFFSET Y: {layer.shadowOffsetY}
-                </label>
+                <label className="tape-label mb-1 block">Offset Y · {layer.shadowOffsetY}</label>
                 <input
                   type="range"
                   min="-20"

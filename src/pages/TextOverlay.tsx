@@ -60,13 +60,8 @@ export function TextOverlay() {
     if (isLoadingFromUrl) {
       return (
         <div className="max-w-2xl mx-auto animate-fade-up">
-          <div
-            className="border-2 p-12 flex items-center justify-center"
-            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
-          >
-            <p className="font-mono text-sm" style={{ color: 'var(--muted)' }}>
-              LOADING SHARED IMAGE...
-            </p>
+          <div className="panel flex items-center justify-center p-12">
+            <p className="text-sm text-subtle">Loading shared image…</p>
           </div>
         </div>
       );
@@ -90,13 +85,13 @@ export function TextOverlay() {
               onClick={() => addLayer()}
               className="btn-primary px-4 py-2 text-sm"
             >
-              + ADD TEXT
+              + Add text
             </button>
             <button
               onClick={clearImage}
               className="btn-secondary px-4 py-2 text-sm"
             >
-              CLEAR
+              Clear
             </button>
           </div>
         </div>
@@ -115,11 +110,8 @@ export function TextOverlay() {
         </div>
 
         {/* Keyboard Shortcuts Hint */}
-        <div
-          className="text-center font-mono text-xs animate-fade-up delay-200"
-          style={{ color: 'var(--muted)' }}
-        >
-          Drag text to position • Click to select • Use panel to customize
+        <div className="animate-fade-up delay-200 text-center text-xs text-subtle">
+          Drag text to position · Click to select · Use the panel to customize
         </div>
       </div>
 

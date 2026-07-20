@@ -202,17 +202,8 @@ export function PreviewCanvas({
 
   if (!image) {
     return (
-      <div
-        className="border-2 flex items-center justify-center"
-        style={{
-          borderColor: 'var(--border)',
-          backgroundColor: 'var(--surface)',
-          aspectRatio: '16/9',
-        }}
-      >
-        <p className="font-mono text-sm" style={{ color: 'var(--muted)' }}>
-          NO IMAGE LOADED
-        </p>
+      <div className="panel flex aspect-video items-center justify-center">
+        <p className="text-sm text-subtle">No image loaded</p>
       </div>
     );
   }
@@ -224,10 +215,8 @@ export function PreviewCanvas({
     <>
     <div
       ref={containerRef}
-      className="border-2 relative overflow-hidden"
+      className="panel relative overflow-hidden"
       style={{
-        borderColor: 'var(--border)',
-        backgroundColor: 'var(--surface)',
         aspectRatio: `${totalAspectRatio}`,
         maxHeight: '70vh',
       }}

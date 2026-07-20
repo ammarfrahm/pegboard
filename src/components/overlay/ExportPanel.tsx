@@ -84,28 +84,25 @@ export function ExportPanel({ image, layers, originalFilename }: ExportPanelProp
   const isDisabled = !image || layers.length === 0;
 
   return (
-    <div
-      className="border-2 p-4"
-      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
-    >
-      <h3 className="font-display text-sm mb-4">EXPORT</h3>
+    <div className="panel p-4">
+      <div className="mb-4 flex items-center gap-2">
+        <div className="h-2 w-2 rounded-full bg-accent" />
+        <h3 className="tape-label">Export</h3>
+      </div>
 
       {/* Format Selection */}
       <div className="mb-4">
-        <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-          FORMAT
-        </label>
+        <label className="tape-label mb-2 block">Format</label>
         <div className="flex gap-2">
           {(['png', 'jpeg'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFormat(f)}
-              className="flex-1 px-3 py-2 border-2 font-mono text-xs uppercase transition-colors"
-              style={{
-                borderColor: format === f ? 'var(--accent)' : 'var(--border)',
-                backgroundColor: format === f ? 'var(--accent)' : 'transparent',
-                color: format === f ? 'var(--accent-foreground)' : 'var(--foreground)',
-              }}
+              className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold uppercase transition-colors ${
+                format === f
+                  ? 'border-accent bg-accent text-accent-ink'
+                  : 'border-line text-subtle hover:border-accent hover:text-accent'
+              }`}
             >
               {f}
             </button>
@@ -116,9 +113,7 @@ export function ExportPanel({ image, layers, originalFilename }: ExportPanelProp
       {/* Quality Slider (JPEG only) */}
       {format === 'jpeg' && (
         <div className="mb-4">
-          <label className="block font-mono text-xs mb-2" style={{ color: 'var(--muted)' }}>
-            QUALITY: {quality}%
-          </label>
+          <label className="tape-label mb-2 block">Quality · {quality}%</label>
           <input
             type="range"
             min="10"
@@ -131,20 +126,20 @@ export function ExportPanel({ image, layers, originalFilename }: ExportPanelProp
       )}
 
       {/* Primary Action Buttons */}
-      <div className="flex gap-2 mb-3">
+      <div className="mb-3 flex gap-2">
         <button
           onClick={handleDownload}
           disabled={isDisabled}
-          className="flex-1 btn-primary px-4 py-2 text-sm"
+          className="btn-primary flex-1 px-4 py-2 text-sm"
         >
-          DOWNLOAD
+          Download
         </button>
         <button
           onClick={handleCopy}
           disabled={isDisabled || isCopying}
-          className="flex-1 btn-secondary px-4 py-2 text-sm"
+          className="btn-secondary flex-1 px-4 py-2 text-sm"
         >
-          {isCopying ? 'COPYING...' : copySuccess ? 'COPIED!' : 'COPY'}
+          {isCopying ? 'Copying…' : copySuccess ? 'Copied' : 'Copy'}
         </button>
       </div>
 
@@ -153,44 +148,26 @@ export function ExportPanel({ image, layers, originalFilename }: ExportPanelProp
         <button
           onClick={handleCopyBase64}
           disabled={isDisabled || isCopyingBase64}
-          className="flex-1 px-3 py-2 border-2 font-mono text-xs uppercase transition-colors"
-          style={{
-            borderColor: 'var(--border)',
-            backgroundColor: 'transparent',
-            color: base64Success ? 'var(--success)' : 'var(--muted)',
-          }}
-          onMouseEnter={(e) => {
-            if (!base64Success) e.currentTarget.style.color = 'var(--foreground)';
-          }}
-          onMouseLeave={(e) => {
-            if (!base64Success) e.currentTarget.style.color = 'var(--muted)';
-          }}
+          className={`btn-ghost flex-1 border border-line px-3 py-2 text-xs font-medium ${
+            base64Success ? 'text-ok' : ''
+          }`}
         >
-          {isCopyingBase64 ? '...' : base64Success ? 'COPIED!' : 'BASE64'}
+          {isCopyingBase64 ? '…' : base64Success ? 'Copied' : 'Copy as Base64'}
         </button>
         <button
           onClick={handleGenerateShareLink}
           disabled={isDisabled || isGeneratingLink}
-          className="flex-1 px-3 py-2 border-2 font-mono text-xs uppercase transition-colors"
-          style={{
-            borderColor: linkError ? 'var(--danger)' : 'var(--border)',
-            backgroundColor: 'transparent',
-            color: linkSuccess ? 'var(--success)' : linkError ? 'var(--danger)' : 'var(--muted)',
-          }}
-          onMouseEnter={(e) => {
-            if (!linkSuccess && !linkError) e.currentTarget.style.color = 'var(--foreground)';
-          }}
-          onMouseLeave={(e) => {
-            if (!linkSuccess && !linkError) e.currentTarget.style.color = 'var(--muted)';
-          }}
+          className={`btn-ghost flex-1 border px-3 py-2 text-xs font-medium ${
+            linkError ? 'border-bad text-bad' : linkSuccess ? 'border-line text-ok' : 'border-line'
+          }`}
         >
-          {isGeneratingLink ? '...' : linkSuccess ? 'COPIED!' : linkError ? 'TOO LARGE' : 'SHARE LINK'}
+          {isGeneratingLink ? '…' : linkSuccess ? 'Copied' : linkError ? 'Too large' : 'Share link'}
         </button>
       </div>
 
       {isDisabled && (
-        <p className="font-mono text-xs mt-3 text-center" style={{ color: 'var(--muted)' }}>
-          Add an image and text layers to export
+        <p className="mt-3 text-center text-xs text-subtle">
+          Add an image and a text layer to export
         </p>
       )}
     </div>
